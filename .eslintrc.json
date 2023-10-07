@@ -1,42 +1,62 @@
 {
-  "root": true,
-  "ignorePatterns": ["**/*"],
-  "plugins": ["@nx"],
-  "overrides": [
-    {
-      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "rules": {
-        "@nx/enforce-module-boundaries": [
-          "error",
-          {
-            "enforceBuildableLibDependency": true,
-            "allow": [],
-            "depConstraints": [
-              {
-                "sourceTag": "*",
-                "onlyDependOnLibsWithTags": ["*"]
-              }
-            ]
-          }
-        ]
-      }
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module",
+        "warnOnUnsupportedTypeScriptVersion": false
     },
-    {
-      "files": ["*.ts", "*.tsx"],
-      "extends": ["plugin:@nx/typescript"],
-      "rules": {}
+    "plugins": ["@typescript-eslint", "prefer-arrow"],
+    "extends": ["plugin:@typescript-eslint/recommended", "plugin:react/recommended"],
+
+    "rules": {
+        // Disable rules that duplicate @typescript-eslint
+        "comma-spacing": "off",
+        "default-param-last": "off",
+        "keyword-spacing": "off",
+        "no-unused-vars": "off",
+        "semi": "off",
+
+        // ESLint standard rules
+        "eqeqeq": ["error", "always"],
+
+        // @typescript-eslint rules
+        "@typescript-eslint/await-thenable": "off",
+        "@typescript-eslint/brace-style": "error",
+        "@typescript-eslint/comma-spacing": ["error"],
+        "@typescript-eslint/consistent-indexed-object-style": ["error", "index-signature"],
+        "@typescript-eslint/explicit-module-boundary-types": ["error"],
+        "@typescript-eslint/keyword-spacing": ["error"],
+        "@typescript-eslint/method-signature-style": "error",
+        "@typescript-eslint/no-explicit-any": "error",
+        "@typescript-eslint/no-unused-vars": [
+            "error",
+            {
+                "argsIgnorePattern": "^_",
+                "caughtErrorsIgnorePattern": "^_",
+                "varsIgnorePattern": "^_"
+            }
+        ],
+        "@typescript-eslint/semi": ["error"],
+
+        // prefer-arrow rules
+        "prefer-arrow/prefer-arrow-functions": [
+            "error",
+            {
+                "classPropertiesAllowed": false,
+                "disallowPrototype": true,
+                "singleReturnOnly": false
+            }
+        ],
+
+        // React rules
+        "react/display-name": "off",
+        "react/prop-types": "off"
     },
-    {
-      "files": ["*.js", "*.jsx"],
-      "extends": ["plugin:@nx/javascript"],
-      "rules": {}
-    },
-    {
-      "files": ["*.spec.ts", "*.spec.tsx", "*.spec.js", "*.spec.jsx"],
-      "env": {
-        "jest": true
-      },
-      "rules": {}
+
+    "settings": {
+        "react": {
+            "pragma": "React",
+            "version": "detect"
+        }
     }
-  ]
 }
