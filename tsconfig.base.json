@@ -19,7 +19,9 @@
         "noImplicitAny": true,
         "noImplicitOverride": true,
         "noImplicitReturns": true,
-        "paths": {},
+        "paths": {
+            "@ephemera/stdlib": ["stdlib/src/index.ts"]
+        },
         "resolveJsonModule": true,
         "rootDir": ".",
         "skipDefaultLibCheck": true,

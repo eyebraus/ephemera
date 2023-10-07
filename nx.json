@@ -10,7 +10,8 @@
         "@nx/react": {
             "application": {
                 "babel": true
-            }
+            },
+            "library": {}
         }
     },
     "namedInputs": {
@@ -31,6 +32,9 @@
         "build": {
             "dependsOn": ["^build"],
             "inputs": ["production", "^production"]
+        },
+        "e2e": {
+            "inputs": ["default", "^production"]
         },
         "lint": {
             "inputs": [

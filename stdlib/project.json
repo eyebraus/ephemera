@@ -1,0 +1,16 @@
+{
+    "$schema": "../node_modules/nx/schemas/project-schema.json",
+    "name": "stdlib",
+    "projectType": "library",
+    "sourceRoot": "stdlib/src",
+    "tags": [],
+    "targets": {
+        "lint": {
+            "executor": "@nx/linter:eslint",
+            "options": {
+                "lintFilePatterns": ["stdlib/**/*.{ts,tsx,js,jsx}"]
+            },
+            "outputs": ["{options.outputFile}"]
+        }
+    }
+}
