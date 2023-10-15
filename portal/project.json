@@ -1,0 +1,68 @@
+{
+    "$schema": "../node_modules/nx/schemas/project-schema.json",
+    "name": "portal",
+    "projectType": "application",
+    "sourceRoot": "portal",
+    "tags": [],
+    "targets": {
+        "build": {
+            "configurations": {
+                "development": {
+                    "outputPath": "portal"
+                },
+                "production": {}
+            },
+            "defaultConfiguration": "production",
+            "executor": "@nx/next:build",
+            "options": {
+                "outputPath": "dist/portal"
+            },
+            "outputs": ["{options.outputPath}"]
+        },
+        "export": {
+            "executor": "@nx/next:export",
+            "options": {
+                "buildTarget": "portal:build:production"
+            }
+        },
+        "lint": {
+            "executor": "@nx/linter:eslint",
+            "options": {
+                "lintFilePatterns": ["portal/**/*.{ts,tsx,js,jsx}"]
+            },
+            "outputs": ["{options.outputFile}"]
+        },
+        "serve": {
+            "configurations": {
+                "development": {
+                    "buildTarget": "portal:build:development",
+                    "dev": true
+                },
+                "production": {
+                    "buildTarget": "portal:build:production",
+                    "dev": false
+                }
+            },
+            "defaultConfiguration": "development",
+            "executor": "@nx/next:server",
+            "options": {
+                "buildTarget": "portal:build",
+                "dev": true
+            }
+        },
+        "test": {
+            "configurations": {
+                "ci": {
+                    "ci": true,
+                    "codeCoverage": true
+                }
+            },
+            "executor": "@nx/jest:jest",
+            "options": {
+                "jestConfig": "portal/jest.config.ts",
+                "passWithNoTests": true
+            },
+            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"]
+        }
+    }
+}

@@ -1,4 +1,3 @@
-
 /**
  * Checks whether a string value is not undefined nor empty.
  * @param value value

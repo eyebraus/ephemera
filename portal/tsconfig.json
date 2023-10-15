@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "incremental": true,
+        "noEmit": true,
+        "plugins": [
+            {
+                "name": "next"
+            }
+        ],
+        "types": ["jest", "node"]
+    },
+    "exclude": [
+        "jest.config.ts",
+        "node_modules",
+        "test/**/*.ts",
+        "test/**/*.ts"
+    ],
+    "extends": "../tsconfig.base.json",
+    "include": [
+        "**/*.ts",
+        "**/*.tsx",
+        "../portal/.next/types/**/*.ts",
+        "../dist/portal/.next/types/**/*.ts",
+        "next-env.d.ts"
+    ]
+}
