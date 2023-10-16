@@ -1,4 +1,4 @@
-import { Grid, Typography } from '@mui/material';
+import { Container, Grid, Typography } from '@mui/material';
 import React from 'react';
 
 /**
@@ -7,15 +7,17 @@ import React from 'react';
  */
 const Index: React.FC = () => {
     return (
-        <Grid container spacing={2}>
-            <Grid item xs={12}>
-                <Typography variant="h1">Welcome</Typography>
-            </Grid>
+        <Container maxWidth="md">
+            <Grid container spacing={2}>
+                <Grid item xs={12}>
+                    <Typography variant="h1">Welcome</Typography>
+                </Grid>
 
-            <Grid item xs={12}>
-                <Typography variant="body1">You&apos;re in the write place</Typography>
+                <Grid item xs={12}>
+                    <Typography variant="body1">You&apos;re in the write place</Typography>
+                </Grid>
             </Grid>
-        </Grid>
+        </Container>
     );
 };
 
