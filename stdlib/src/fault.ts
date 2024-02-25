@@ -3,7 +3,7 @@ import { isString } from './string';
 /**
  * Core type for a failure. This can be a handled failure or an unhandled one, such as an {@link Error}.
  */
-export interface Failure<TCode extends string = string> {
+export interface Fault<TCode extends string = string> {
     /**
      * Failure code.
      */
@@ -12,7 +12,7 @@ export interface Failure<TCode extends string = string> {
     /**
      * Failure which caused this failure to occur.
      */
-    inner?: Failure;
+    inner?: Fault;
 
     /**
      * Description of the failure.
@@ -21,12 +21,12 @@ export interface Failure<TCode extends string = string> {
 }
 
 /**
- * Checks whether a value is a {@link Failure}.
+ * Checks whether a value is a {@link Fault}.
  * @param value value
- * @returns True if value can be assigned to {@link Failure}; false otherwise
+ * @returns True if value can be assigned to {@link Fault}; false otherwise
  */
-export const isFailure = (value: unknown): value is Failure => {
-    const { code, message } = value as Failure;
+export const isFault = (value: unknown): value is Fault => {
+    const { code, message } = value as Fault;
 
     // Note: purposefully not recursive-checking inner here.
     return isString(code) && isString(message);

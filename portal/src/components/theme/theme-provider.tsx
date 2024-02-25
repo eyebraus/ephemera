@@ -1,14 +1,10 @@
 'use client';
 
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider as MaterialThemeProvider } from '@mui/material/styles';
 import * as React from 'react';
 import darkTheme from '../../theme/dark';
-import EmotionCacheProvider, { EmotionCacheOptions } from './emotion-cache-provider';
-
-const cacheProviderOptions: EmotionCacheOptions = {
-    key: 'mui',
-};
 
 /**
  * Properties for {@link ThemeProvider}.
@@ -26,12 +22,12 @@ const ThemeProvider: React.FC<ThemeProviderProps> = (props) => {
     const { children } = props;
 
     return (
-        <EmotionCacheProvider options={cacheProviderOptions}>
+        <AppRouterCacheProvider>
             <MaterialThemeProvider theme={darkTheme}>
                 <CssBaseline />
                 {children}
             </MaterialThemeProvider>
-        </EmotionCacheProvider>
+        </AppRouterCacheProvider>
     );
 };
 

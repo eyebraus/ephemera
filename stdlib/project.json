@@ -11,6 +11,20 @@
                 "lintFilePatterns": ["stdlib/**/*.{ts,tsx,js,jsx}"]
             },
             "outputs": ["{options.outputFile}"]
+        },
+        "test": {
+            "configurations": {
+                "ci": {
+                    "ci": true,
+                    "codeCoverage": true
+                }
+            },
+            "executor": "@nx/jest:jest",
+            "options": {
+                "jestConfig": "stdlib/jest.config.ts",
+                "passWithNoTests": true
+            },
+            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"]
         }
     }
 }

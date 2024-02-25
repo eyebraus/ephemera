@@ -1,15 +1,9 @@
-import { Box, Drawer, SxProps, Theme } from '@mui/material';
+import { Box, SxProps, Theme } from '@mui/material';
 import { Metadata } from 'next';
 import React from 'react';
+import Nav from '../components/chrome/nav';
 import TitleBar from '../components/chrome/title-bar';
 import ThemeProvider from '../components/theme/theme-provider';
-
-const drawerStyles: SxProps<Theme> = {
-    [`& .MuiDrawer-paper`]: {
-        top: 64,
-        width: 240,
-    },
-};
 
 const frameStyles: SxProps<Theme> = {
     left: 240,
@@ -37,11 +31,7 @@ const RootLayout: React.FC<RootLayoutProps> = (props: RootLayoutProps) => {
             <body>
                 <ThemeProvider>
                     <TitleBar />
-
-                    <Drawer sx={drawerStyles} variant="permanent">
-                        aaa
-                    </Drawer>
-
+                    <Nav />
                     <Box sx={frameStyles}>{children}</Box>
                 </ThemeProvider>
             </body>
