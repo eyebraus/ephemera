@@ -1,7 +1,7 @@
-import { Failure, isFailure } from './failure';
+import { Fault, isFault } from './fault';
 import { isString } from './string';
 
-const convertInnerFailureToObject = (inner: Failure | undefined): Failure | undefined => {
+const convertInnerFaultToObject = (inner: Fault | undefined): Fault | undefined => {
     if (inner === undefined) {
         return undefined;
     }
@@ -17,7 +17,7 @@ const convertInnerFailureToObject = (inner: Failure | undefined): Failure | unde
  * Core implementation of an error. Enriches {@link Error} with additional information and provides constructors for
  * conveniently building errors adhering to the enriched schema.
  */
-export class CoreError<TCode extends string = string> extends Error implements Failure<TCode> {
+export class CoreError<TCode extends string = string> extends Error implements Fault<TCode> {
     /**
      * Error code.
      */
@@ -26,7 +26,7 @@ export class CoreError<TCode extends string = string> extends Error implements F
     /**
      * Failure which caused this error to occur.
      */
-    inner?: Failure;
+    inner?: Fault;
 
     /**
      * Constructs a {@link CoreError}.
@@ -40,9 +40,9 @@ export class CoreError<TCode extends string = string> extends Error implements F
      * @param message Description of the error
      * @param inner Failure which caused this error to occur
      */
-    constructor(code: TCode, message: string, inner?: Failure);
+    constructor(code: TCode, message: string, inner?: Fault);
 
-    constructor(codeOrMessage: TCode | string, message?: string, inner?: Failure) {
+    constructor(codeOrMessage: TCode | string, message?: string, inner?: Fault) {
         super(isString(message) ? message : codeOrMessage);
 
         this.code = isString(message) ? (codeOrMessage as TCode) : 'Unknown';
@@ -56,7 +56,7 @@ export class CoreError<TCode extends string = string> extends Error implements F
     toObject(): CoreErrorProperties<TCode> {
         return {
             code: this.code,
-            inner: convertInnerFailureToObject(this.inner),
+            inner: convertInnerFaultToObject(this.inner),
             message: this.message,
             stack: this.stack,
         };
@@ -66,9 +66,9 @@ export class CoreError<TCode extends string = string> extends Error implements F
 /**
  * Object representation of a {@link CoreError}.
  */
-export interface CoreErrorProperties<TCode extends string = string> extends ErrorProperties, Failure<TCode> {
+export interface CoreErrorProperties<TCode extends string = string> extends ErrorProperties, Fault<TCode> {
     code: TCode | 'Unknown';
-    inner?: Failure;
+    inner?: Fault;
 }
 
 /**
@@ -98,7 +98,7 @@ export const isCoreErrorProperties = (value: unknown): value is CoreErrorPropert
 
     const { code, inner } = value as CoreErrorProperties;
 
-    return isString(code) && (inner === undefined || isFailure(inner));
+    return isString(code) && (inner === undefined || isFault(inner));
 };
 
 /**
