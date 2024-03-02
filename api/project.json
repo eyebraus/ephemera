@@ -1,0 +1,32 @@
+{
+    "$schema": "../node_modules/nx/schemas/project-schema.json",
+    "name": "api",
+    "projectType": "application",
+    "sourceRoot": "api",
+    "tags": [],
+    "targets": {
+        "serve": {
+            "configurations": {
+                "development": {
+                    "buildTarget": "api:build:development"
+                },
+                "production": {
+                    "buildTarget": "api:build:production"
+                }
+            },
+            "defaultConfiguration": "development",
+            "executor": "@nx/js:node",
+            "options": {
+                "buildTarget": "api:build"
+            }
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "options": {
+                "jestConfig": "api/jest.config.ts",
+                "passWithNoTests": true
+            },
+            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"]
+        }
+    }
+}

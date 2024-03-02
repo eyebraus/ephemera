@@ -28,6 +28,22 @@
         ],
         "sharedGlobals": []
     },
+    "plugins": [
+        {
+            "plugin": "@nx/eslint/plugin",
+            "options": {
+                "targetName": "lint"
+            }
+        },
+        {
+            "plugin": "@nx/webpack/plugin",
+            "options": {
+                "buildTargetName": "build",
+                "previewTargetName": "preview",
+                "serveTargetName": "serve"
+            }
+        }
+    ],
     "targetDefaults": {
         "build": {
             "dependsOn": ["^build"],
