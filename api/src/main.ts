@@ -1,21 +1,19 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-
+import { createProvider } from '@ephemera/provide';
 import express from 'express';
-import * as path from 'path';
+import { apiConfiguration } from './configure';
+
+const provide = createProvider(apiConfiguration);
 
 const app = express();
-
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
-
-app.get('/api', (req, res) => {
-    res.send({ message: 'Welcome to api!' });
-});
+app.use(express.json());
 
 const port = process.env.PORT || 3333;
+
+app.use('/templates', provide('templateRouter'));
+app.use('/templates/:template/versions', provide('templateVersionRouter'));
+
 const server = app.listen(port, () => {
     console.log(`Listening at http://localhost:${port}/api`);
 });
+
 server.on('error', console.error);

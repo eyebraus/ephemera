@@ -1,0 +1,30 @@
+{
+    "$schema": "../node_modules/nx/schemas/project-schema.json",
+    "name": "model",
+    "projectType": "library",
+    "sourceRoot": "model",
+    "tags": [],
+    "targets": {
+        "lint": {
+            "executor": "@nx/linter:eslint",
+            "options": {
+                "lintFilePatterns": ["model/**/*.{ts,tsx,js,jsx}"]
+            },
+            "outputs": ["{options.outputFile}"]
+        },
+        "test": {
+            "configurations": {
+                "ci": {
+                    "ci": true,
+                    "codeCoverage": true
+                }
+            },
+            "executor": "@nx/jest:jest",
+            "options": {
+                "jestConfig": "model/jest.config.ts",
+                "passWithNoTests": true
+            },
+            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"]
+        }
+    }
+}
