@@ -1,8 +1,12 @@
-import { TemplateVersionIdTokenSet } from '@ephemera/model';
+import { TemplateVersionId } from '@ephemera/model';
 import { Factory } from '@ephemera/provide';
-import { CoreError } from '@ephemera/stdlib';
-import { Repository, Schema } from 'redis-om';
+import { Schema } from 'redis-om';
+import { RedisRepository } from '../access/redis-repository';
 import { DataProfile } from '../configure';
+
+/**
+ * Types
+ */
 
 export interface TemplateVersionModel {
     createdAt: Date;
@@ -12,29 +16,33 @@ export interface TemplateVersionModel {
     versionNumber: number;
 }
 
-export const getEntityIdForTemplateVersion = (tokens: TemplateVersionIdTokenSet): string =>
-    ['template', tokens.template.toLowerCase(), 'version', tokens.versionNumber].join(':');
+/**
+ * Factories
+ */
 
-export const getTokensFromTemplateVersionEntityId = (entityId: string): TemplateVersionIdTokenSet => {
-    if (!/^template:[A-Za-z0-9\-]+:version:\d+$/.test(entityId)) {
-        throw new CoreError('Given ID is not a valid template version entity ID');
-    }
+export const templateVersionRepository: Factory<
+    DataProfile,
+    RedisRepository<TemplateVersionModel, TemplateVersionId>
+> = (provide) => {
+    const redisRepositoryBuilder = provide('redisRepositoryBuilder');
 
-    const [, template, , versionNumber] = entityId.split(':');
+    return redisRepositoryBuilder<TemplateVersionModel, TemplateVersionId>({
+        getEntityId: (id) => ['template', id.template.toLowerCase(), 'version', id.versionNumber].join(':'),
 
-    return { template, versionNumber };
-};
+        mapEntityToDocument: (entity) => ({
+            createdAt: entity['createdAt'] as Date,
+            entityId: entity['entityId'] as string,
+            id: entity['id'] as string,
+            modifiedAt: entity['modifiedAt'] as Date,
+            versionNumber: entity['versionNumber'] as number,
+        }),
 
-export const templateVersionSchema = new Schema('template:version', {
-    createdAt: { type: 'date' },
-    entityId: { type: 'string' },
-    id: { type: 'string' },
-    modifiedAt: { type: 'date' },
-    versionNumber: { type: 'number' },
-});
-
-export const templateVersionRepository: Factory<DataProfile, Repository> = (provide) => {
-    const redisClient = provide('redisClient');
-
-    return new Repository(templateVersionSchema, redisClient);
+        schema: new Schema('template:version', {
+            createdAt: { type: 'date' },
+            entityId: { type: 'string' },
+            id: { type: 'string' },
+            modifiedAt: { type: 'date' },
+            versionNumber: { type: 'number' },
+        }),
+    });
 };

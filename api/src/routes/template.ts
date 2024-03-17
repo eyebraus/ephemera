@@ -1,8 +1,6 @@
-import { TemplateModel, getEntityIdForTemplate } from '@ephemera/data';
-import { TemplateIdTokenSet } from '@ephemera/model';
+import { TemplateId } from '@ephemera/model';
 import { Factory } from '@ephemera/provide';
 import { Request, Response, Router } from 'express';
-import { Entity } from 'redis-om';
 import { ApiProfile } from '../configure';
 import {
     GetTemplateResponseBody,
@@ -17,8 +15,8 @@ type ListTemplatesResponse = Response<ListTemplatesResponseBody>;
 type PutTemplateRequest = Request<{ id: string }, PutTemplateResponseBody, PutTemplateRequestBody>;
 type PutTemplateResponse = Response<PutTemplateResponseBody>;
 
-const getUrlForTemplate = (hostname: string, tokens: TemplateIdTokenSet) => {
-    const { template } = tokens;
+const getUrlForTemplate = (hostname: string, id: TemplateId) => {
+    const { template } = id;
 
     return `https://${hostname}/template/${template.toLowerCase()}`;
 };
@@ -30,9 +28,7 @@ export const templateRouter: Factory<ApiProfile, Router> = (provider) => {
     router.delete('/:id', async (request, response) => {
         const { params } = request;
         const { id } = params;
-        const entityId = getEntityIdForTemplate({ template: id });
-
-        await repository.remove(entityId);
+        await repository.remove({ template: id });
         response.status(204);
     });
 
@@ -40,7 +36,7 @@ export const templateRouter: Factory<ApiProfile, Router> = (provider) => {
         const { hostname } = request;
         const count = getCountFromQuery(request);
         const skip = getSkipFromQuery(request);
-        const templates = (await repository.search().page(skip, count)) as unknown as (TemplateModel & Entity)[];
+        const templates = await repository.search().page(skip, count);
 
         const value = templates.map<GetTemplateResponseBody>((template) => ({
             description: template.description,
@@ -59,9 +55,7 @@ export const templateRouter: Factory<ApiProfile, Router> = (provider) => {
     router.get('/:id', async (request, response: GetTemplateResponse) => {
         const { hostname, params } = request;
         const { id } = params;
-        const entityId = getEntityIdForTemplate({ template: id });
-
-        const template = (await repository.fetch(entityId)) as unknown as TemplateModel;
+        const template = await repository.fetch({ template: id });
 
         response.status(200).send({
             description: template.description,
@@ -75,17 +69,16 @@ export const templateRouter: Factory<ApiProfile, Router> = (provider) => {
         const { body, hostname, params } = request;
         const { id } = params;
         const timestamp = new Date();
-        const entityId = getEntityIdForTemplate({ template: id });
 
-        const entity: TemplateModel & Entity = {
-            ...body,
-            createdAt: timestamp,
-            entityId,
-            id,
-            modifiedAt: timestamp,
-        };
-
-        const template = (await repository.save(entityId, entity)) as unknown as TemplateModel;
+        const template = await repository.save(
+            { template: id },
+            {
+                ...body,
+                createdAt: timestamp,
+                id,
+                modifiedAt: timestamp,
+            },
+        );
 
         response.status(201).send({
             description: template.description,

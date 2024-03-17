@@ -1,3 +1,3 @@
 import { IdTokenSet } from './id';
 
-export type TemplateFieldIdTokenSet = IdTokenSet<'field' | 'template' | 'versionNumber'>;
+export type TemplateFieldId = IdTokenSet<'field' | 'template' | 'versionNumber'>;

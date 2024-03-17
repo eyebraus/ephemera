@@ -1,8 +1,12 @@
-import { TemplateIdTokenSet } from '@ephemera/model';
+import { TemplateId } from '@ephemera/model';
 import { Factory } from '@ephemera/provide';
-import { CoreError } from '@ephemera/stdlib';
-import { Repository, Schema } from 'redis-om';
+import { Schema } from 'redis-om';
+import { RedisRepository } from '../access/redis-repository';
 import { DataProfile } from '../configure';
+
+/**
+ * Types
+ */
 
 export interface TemplateModel {
     createdAt: Date;
@@ -13,30 +17,32 @@ export interface TemplateModel {
     name: string;
 }
 
-export const getEntityIdForTemplate = (tokens: TemplateIdTokenSet): string =>
-    ['template', tokens.template.toLowerCase()].join(':');
+/**
+ * Factories
+ */
 
-export const getTokensFromTemplateEntityId = (entityId: string): TemplateIdTokenSet => {
-    if (!/^template:[A-Za-z0-9\-]+$/.test(entityId)) {
-        throw new CoreError('Given ID is not a valid template entity ID');
-    }
+export const templateRepository: Factory<DataProfile, RedisRepository<TemplateModel, TemplateId>> = (provide) => {
+    const redisRepositoryBuilder = provide('redisRepositoryBuilder');
 
-    const [, template] = entityId.split(':');
+    return redisRepositoryBuilder<TemplateModel, TemplateId>({
+        getEntityId: (id) => ['template', id.template.toLowerCase()].join(':'),
 
-    return { template };
-};
+        mapEntityToDocument: (entity) => ({
+            createdAt: entity['createdAt'] as Date,
+            description: entity['description'] as string,
+            entityId: entity['entityId'] as string,
+            id: entity['id'] as string,
+            modifiedAt: entity['modifiedAt'] as Date,
+            name: entity['name'] as string,
+        }),
 
-export const templateSchema = new Schema('template', {
-    createdAt: { type: 'date' },
-    description: { type: 'text' },
-    entityId: { type: 'string' },
-    id: { type: 'string' },
-    modifiedAt: { type: 'date' },
-    name: { type: 'string' },
-});
-
-export const templateRepository: Factory<DataProfile, Repository> = (provide) => {
-    const redisClient = provide('redisClient');
-
-    return new Repository(templateSchema, redisClient);
+        schema: new Schema('template', {
+            createdAt: { type: 'date' },
+            description: { type: 'text' },
+            entityId: { type: 'string' },
+            id: { type: 'string' },
+            modifiedAt: { type: 'date' },
+            name: { type: 'string' },
+        }),
+    });
 };

@@ -1,5 +1,6 @@
 export * from './array';
 export * from './core-error';
+export * from './empty';
 export * from './ensure';
 export * from './fault';
 export * from './if';

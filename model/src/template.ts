@@ -1,3 +1,3 @@
 import { IdTokenSet } from './id';
 
-export type TemplateIdTokenSet = IdTokenSet<'template'>;
+export type TemplateId = IdTokenSet<'template'>;

@@ -1,14 +1,7 @@
-import {
-    TemplateFieldModel,
-    TemplateVersionModel,
-    getEntityIdForTemplate,
-    getEntityIdForTemplateField,
-    getEntityIdForTemplateVersion,
-} from '@ephemera/data';
-import { TemplateVersionIdTokenSet } from '@ephemera/model';
+import { TemplateFieldModel } from '@ephemera/data';
+import { TemplateFieldId, TemplateId, TemplateVersionId } from '@ephemera/model';
 import { Factory } from '@ephemera/provide';
 import { Request, Response, Router } from 'express';
-import { Entity } from 'redis-om';
 import { ApiProfile } from '../configure';
 import {
     GetTemplateVersionResponseBody,
@@ -32,35 +25,40 @@ type PutTemplateVersionRequest = Request<
 
 type PutTemplateVersionResponse = Response<PutTemplateVersionResponseBody>;
 
-const getUrlForTemplateVersion = (hostname: string, tokens: TemplateVersionIdTokenSet) => {
+const getUrlForTemplateVersion = (hostname: string, tokens: TemplateVersionId) => {
     const { template, versionNumber } = tokens;
 
     return `https://${hostname}/templates/${template.toLowerCase()}/versions/${versionNumber}`;
 };
 
+const removeEntityIdFromFields = (fields: TemplateFieldModel[]) =>
+    fields.map((field) => {
+        const { entityId: _, ...fieldResponse } = field;
+
+        return fieldResponse;
+    });
+
 export const templateVersionRouter: Factory<ApiProfile, Router> = (provider) => {
     const fieldRepository = provider('templateFieldRepository');
+    const templateRepository = provider('templateRepository');
     const versionRepository = provider('templateVersionRepository');
     const router = Router();
 
-    const getChildTemplateFields = async (entityId: string) => {
-        const entities = await fieldRepository.search().where('entityId').equals(`${entityId}:*`).all();
+    const getChildTemplateFields = async (id: TemplateVersionId) => {
+        const entityId = versionRepository.getEntityId(id);
 
-        return entities as unknown as (TemplateFieldModel & Entity)[];
+        return await fieldRepository.search().where('entityId').equals(`${entityId}:*`).all();
     };
 
     router.delete('/:id(d+)', async (request: DeleteTemplateVersionRequest, response) => {
         const { params } = request;
-        const { id, template } = params;
-        const entityId = getEntityIdForTemplateVersion({ template, versionNumber: id });
+        const { id: versionNumber, template } = params;
+        const id: TemplateVersionId = { template, versionNumber };
 
-        const fields = await getChildTemplateFields(entityId);
-        const fieldEntityIds = fields.map((field) => field.entityId);
+        const fields = await getChildTemplateFields(id);
+        const fieldEntityIds = fields.map<TemplateFieldId>((field) => ({ ...id, field: field.id }));
 
-        await Promise.all([
-            versionRepository.remove(entityId),
-            ...fieldEntityIds.map((entityId) => fieldRepository.remove(entityId)),
-        ]);
+        await Promise.all([versionRepository.remove(id), ...fieldEntityIds.map((id) => fieldRepository.remove(id))]);
 
         response.status(204);
     });
@@ -70,25 +68,20 @@ export const templateVersionRouter: Factory<ApiProfile, Router> = (provider) => 
         const { template } = params;
         const count = getCountFromQuery(request);
         const skip = getSkipFromQuery(request);
-        const templateEntityId = getEntityIdForTemplate({ template });
+        const id: TemplateId = { template };
 
-        const versions = (await versionRepository
+        const versions = await versionRepository
             .search()
             .where('entityId')
-            .equals(`${templateEntityId}:*`)
-            .page(skip, count)) as unknown as (TemplateVersionModel & Entity)[];
+            .equals(`${templateRepository.getEntityId(id)}:*`)
+            .page(skip, count);
 
-        const fieldsByVersion = await Promise.all(versions.map((version) => getChildTemplateFields(version.entityId)));
+        const fieldsByVersion = await Promise.all(
+            versions.map((version) => getChildTemplateFields({ ...id, versionNumber: version.id })),
+        );
 
         const value = versions.map<GetTemplateVersionResponseBody>((version, index) => ({
-            fields: fieldsByVersion[index].map((model) => ({
-                allowed: model.allowed,
-                description: model.description,
-                id: model.id,
-                kind: model.kind,
-                name: model.name,
-                required: model.required,
-            })),
+            fields: removeEntityIdFromFields(fieldsByVersion[index]),
             id: version.id,
             url: getUrlForTemplateVersion(hostname, { template, versionNumber: version.id }),
             versionNumber: version.versionNumber,
@@ -103,23 +96,16 @@ export const templateVersionRouter: Factory<ApiProfile, Router> = (provider) => 
 
     router.get('/:id(d+)', async (request: GetTemplateVersionRequest, response: GetTemplateVersionResponse) => {
         const { hostname, params } = request;
-        const { id, template } = params;
-        const entityId = getEntityIdForTemplateVersion({ template, versionNumber: id });
+        const { id: versionNumber, template } = params;
+        const id: TemplateVersionId = { template, versionNumber };
 
-        const version = (await versionRepository.fetch(entityId)) as unknown as TemplateVersionModel;
-        const fields = await getChildTemplateFields(entityId);
+        const version = await versionRepository.fetch(id);
+        const fields = await getChildTemplateFields(id);
 
         response.status(200).send({
-            fields: fields.map((model) => ({
-                allowed: model.allowed,
-                description: model.description,
-                id: model.id,
-                kind: model.kind,
-                name: model.name,
-                required: model.required,
-            })),
+            fields: removeEntityIdFromFields(fields),
             id: version.id,
-            url: getUrlForTemplateVersion(hostname, { template, versionNumber: id }),
+            url: getUrlForTemplateVersion(hostname, id),
             versionNumber: version.versionNumber,
         });
     });
@@ -127,53 +113,25 @@ export const templateVersionRouter: Factory<ApiProfile, Router> = (provider) => 
     router.put('/:id(d+)', async (request: PutTemplateVersionRequest, response: PutTemplateVersionResponse) => {
         const { body, hostname, params } = request;
         const { fields, versionNumber } = body;
-        const { id, template } = params;
+        const { id: versionNumberId, template } = params;
+        const id: TemplateVersionId = { template, versionNumber: versionNumberId };
         const timestamp = new Date();
-        const entityId = getEntityIdForTemplateVersion({ template, versionNumber: id });
 
-        const versionEntity: TemplateVersionModel & Entity = {
+        const versionModel = await versionRepository.save(id, {
             createdAt: timestamp,
-            entityId,
-            id,
+            id: versionNumberId,
             modifiedAt: timestamp,
             versionNumber,
-        };
-
-        const fieldEntities = fields.map<TemplateFieldModel & Entity>((field) => ({
-            allowed: field.allowed,
-            description: field.description,
-            entityId: getEntityIdForTemplateField({ field: field.id, template, versionNumber: id }),
-            id: field.id,
-            kind: field.kind,
-            name: field.name,
-            required: field.required,
-        }));
-
-        const versionModel = (await versionRepository.save(entityId, versionEntity)) as unknown as TemplateVersionModel;
+        });
 
         const fieldModels = await Promise.all(
-            fieldEntities.map(async (entity) => {
-                const entityId = getEntityIdForTemplateField({
-                    field: entity.id,
-                    template,
-                    versionNumber: id,
-                });
-
-                return (await fieldRepository.save(entityId, entity)) as unknown as TemplateFieldModel;
-            }),
+            fields.map((field) => fieldRepository.save({ ...id, field: field.id }, field)),
         );
 
         response.status(201).send({
-            fields: fieldModels.map((model) => ({
-                allowed: model.allowed,
-                description: model.description,
-                id: model.id,
-                kind: model.kind,
-                name: model.name,
-                required: model.required,
-            })),
+            fields: removeEntityIdFromFields(fieldModels),
             id: versionModel.id,
-            url: getUrlForTemplateVersion(hostname, { template, versionNumber: id }),
+            url: getUrlForTemplateVersion(hostname, id),
             versionNumber: versionModel.versionNumber,
         });
     });

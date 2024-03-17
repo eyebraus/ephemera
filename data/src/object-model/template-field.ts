@@ -1,8 +1,12 @@
-import { TemplateFieldIdTokenSet } from '@ephemera/model';
+import { TemplateFieldId } from '@ephemera/model';
 import { Factory } from '@ephemera/provide';
-import { CoreError } from '@ephemera/stdlib';
-import { Repository, Schema } from 'redis-om';
+import { Schema } from 'redis-om';
+import { RedisRepository } from '../access/redis-repository';
 import { DataProfile } from '../configure';
+
+/**
+ * Types
+ */
 
 export interface TemplateFieldModel {
     allowed?: string[];
@@ -14,38 +18,39 @@ export interface TemplateFieldModel {
     required: boolean;
 }
 
-export const getEntityIdForTemplateField = (tokens: TemplateFieldIdTokenSet): string =>
-    [
-        'template',
-        tokens.template.toLowerCase(),
-        'version',
-        tokens.versionNumber,
-        'field',
-        tokens.field.toLowerCase(),
-    ].join(':');
+/**
+ * Factories
+ */
 
-export const getTokensFromTemplateFieldEntityId = (entityId: string): TemplateFieldIdTokenSet => {
-    if (!/^template:[A-Za-z0-9\-]+:version:\d+:field:[A-Za-z0-9\-]+$/.test(entityId)) {
-        throw new CoreError('Given ID is not a valid template field entity ID');
-    }
+export const templateFieldRepository: Factory<DataProfile, RedisRepository<TemplateFieldModel, TemplateFieldId>> = (
+    provide,
+) => {
+    const redisRepositoryBuilder = provide('redisRepositoryBuilder');
 
-    const [, template, , versionNumber, , field] = entityId.split(':');
+    return redisRepositoryBuilder<TemplateFieldModel, TemplateFieldId>({
+        getEntityId: (id) =>
+            ['template', id.template.toLowerCase(), 'version', id.versionNumber, 'field', id.field.toLowerCase()].join(
+                ':',
+            ),
 
-    return { field, template, versionNumber };
-};
+        mapEntityToDocument: (entity) => ({
+            allowed: entity['allowed'] ? (entity['allowed'] as string[]) : undefined,
+            description: entity['description'] as string,
+            entityId: entity['entityId'] as string,
+            id: entity['id'] as string,
+            kind: entity['kind'] as string,
+            name: entity['name'] as string,
+            required: entity['required'] as boolean,
+        }),
 
-export const templateFieldSchema = new Schema('template:version:field', {
-    allowed: { type: 'string[]' },
-    description: { type: 'string' },
-    entityId: { type: 'string' },
-    id: { type: 'string' },
-    kind: { type: 'string' },
-    name: { type: 'string' },
-    required: { type: 'boolean' },
-});
-
-export const templateFieldRepository: Factory<DataProfile, Repository> = (provide) => {
-    const redisClient = provide('redisClient');
-
-    return new Repository(templateFieldSchema, redisClient);
+        schema: new Schema('template:version:field', {
+            allowed: { type: 'string[]' },
+            description: { type: 'string' },
+            entityId: { type: 'string' },
+            id: { type: 'string' },
+            kind: { type: 'string' },
+            name: { type: 'string' },
+            required: { type: 'boolean' },
+        }),
+    });
 };
