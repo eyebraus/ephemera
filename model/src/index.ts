@@ -1,3 +1,3 @@
-export type { TemplateId } from './template';
-export type { TemplateFieldId } from './template-field';
-export type { TemplateVersionId } from './template-version';
+export type { TemplateId, TemplateModel } from './template';
+export type { TemplateFieldId, TemplateFieldModel } from './template-field';
+export type { TemplateVersionId, TemplateVersionModel } from './template-version';

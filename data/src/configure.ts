@@ -1,10 +1,17 @@
-import { TemplateFieldId, TemplateId, TemplateVersionId } from '@ephemera/model';
+import {
+    TemplateFieldId,
+    TemplateFieldModel,
+    TemplateId,
+    TemplateModel,
+    TemplateVersionId,
+    TemplateVersionModel,
+} from '@ephemera/model';
 import { Lifetime, ProviderConfiguration } from '@ephemera/provide';
 import { createClient } from 'redis';
 import { RedisRepository, RedisRepositoryBuilder, redisRepositoryBuilder } from './access/redis-repository';
-import { TemplateModel, templateRepository } from './object-model/template';
-import { TemplateFieldModel, templateFieldRepository } from './object-model/template-field';
-import { TemplateVersionModel, templateVersionRepository } from './object-model/template-version';
+import { templateRepository } from './object-model/template';
+import { templateFieldRepository } from './object-model/template-field';
+import { templateVersionRepository } from './object-model/template-version';
 
 export interface DataProfile {
     redisClient: ReturnType<typeof createClient>;

@@ -1,21 +1,11 @@
-import { TemplateId } from '@ephemera/model';
+import { TemplateId, TemplateModel } from '@ephemera/model';
 import { Factory } from '@ephemera/provide';
+import { CoreError } from '@ephemera/stdlib';
 import { Schema } from 'redis-om';
 import { RedisRepository } from '../access/redis-repository';
 import { DataProfile } from '../configure';
 
-/**
- * Types
- */
-
-export interface TemplateModel {
-    createdAt: Date;
-    description: string;
-    entityId: string;
-    id: string;
-    modifiedAt: Date;
-    name: string;
-}
+const entityIdPattern = /^[A-Za-z0-9-]{4,64}$/;
 
 /**
  * Factories
@@ -25,7 +15,15 @@ export const templateRepository: Factory<DataProfile, RedisRepository<TemplateMo
     const redisRepositoryBuilder = provide('redisRepositoryBuilder');
 
     return redisRepositoryBuilder<TemplateModel, TemplateId>({
-        getEntityId: (id) => ['template', id.template.toLowerCase()].join(':'),
+        getEntityId: (id) => id.template.toLowerCase(),
+
+        getId: (entityId) => {
+            if (!entityIdPattern.test(entityId)) {
+                throw new CoreError('Given entity ID did not match pattern expected for templates.');
+            }
+
+            return { template: entityId };
+        },
 
         mapEntityToDocument: (entity) => ({
             createdAt: entity['createdAt'] as Date,

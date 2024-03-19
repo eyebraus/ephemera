@@ -1,4 +1,4 @@
-import { TemplateFieldModel, TemplateVersionModel } from '@ephemera/data';
+import { TemplateFieldModel, TemplateVersionModel } from '@ephemera/model';
 import { PagedResponseBody } from './common';
 
 type CoreTemplateFieldProperties = Omit<TemplateFieldModel, 'entityId'>;

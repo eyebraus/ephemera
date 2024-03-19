@@ -1,5 +1,4 @@
-import { TemplateFieldModel } from '@ephemera/data';
-import { TemplateFieldId, TemplateId, TemplateVersionId } from '@ephemera/model';
+import { TemplateFieldModel, TemplateId, TemplateVersionId } from '@ephemera/model';
 import { Factory } from '@ephemera/provide';
 import { Request, Response, Router } from 'express';
 import { ApiProfile } from '../configure';
@@ -42,23 +41,42 @@ export const templateVersionRouter: Factory<ApiProfile, Router> = (provider) => 
     const fieldRepository = provider('templateFieldRepository');
     const templateRepository = provider('templateRepository');
     const versionRepository = provider('templateVersionRepository');
-    const router = Router();
+    const router = Router({ mergeParams: true });
 
     const getChildTemplateFields = async (id: TemplateVersionId) => {
         const entityId = versionRepository.getEntityId(id);
 
-        return await fieldRepository.search().where('entityId').equals(`${entityId}:*`).all();
+        return await fieldRepository.search().where('entityId').equals(`${entityId}/*`).all();
     };
 
-    router.delete('/:id(d+)', async (request: DeleteTemplateVersionRequest, response) => {
+    const getIdsOfChildTemplateFields = async (id: TemplateVersionId) => {
+        const entityId = versionRepository.getEntityId(id);
+
+        return await fieldRepository.search().where('entityId').equals(`${entityId}/*`).allIds();
+    };
+
+    router.delete('/:id(\\d+)', async (request: DeleteTemplateVersionRequest, response) => {
         const { params } = request;
         const { id: versionNumber, template } = params;
-        const id: TemplateVersionId = { template, versionNumber };
+        const parentId: TemplateId = { template };
+        const id: TemplateVersionId = { ...parentId, versionNumber };
 
-        const fields = await getChildTemplateFields(id);
-        const fieldEntityIds = fields.map<TemplateFieldId>((field) => ({ ...id, field: field.id }));
+        // Check for the existence of the version and its ancestors. If they don't exist, 404
+        const [doesTemplateExist, doesVersionExist] = await Promise.all([
+            templateRepository.has(parentId),
+            versionRepository.has(id),
+        ]);
 
-        await Promise.all([versionRepository.remove(id), ...fieldEntityIds.map((id) => fieldRepository.remove(id))]);
+        if (!doesTemplateExist || !doesVersionExist) {
+            response.status(404);
+            return;
+        }
+
+        // Get IDs of all descended template fields
+        const fieldIds = await getIdsOfChildTemplateFields(id);
+
+        // Delete version and all related documents
+        await Promise.all([versionRepository.remove(id), ...fieldIds.map((id) => fieldRepository.remove(id))]);
 
         response.status(204);
     });
@@ -73,7 +91,7 @@ export const templateVersionRouter: Factory<ApiProfile, Router> = (provider) => 
         const versions = await versionRepository
             .search()
             .where('entityId')
-            .equals(`${templateRepository.getEntityId(id)}:*`)
+            .equals(`${templateRepository.getEntityId(id)}/*`)
             .page(skip, count);
 
         const fieldsByVersion = await Promise.all(
@@ -94,12 +112,18 @@ export const templateVersionRouter: Factory<ApiProfile, Router> = (provider) => 
         });
     });
 
-    router.get('/:id(d+)', async (request: GetTemplateVersionRequest, response: GetTemplateVersionResponse) => {
+    router.get('/:id(\\d+)', async (request: GetTemplateVersionRequest, response: GetTemplateVersionResponse) => {
         const { hostname, params } = request;
         const { id: versionNumber, template } = params;
         const id: TemplateVersionId = { template, versionNumber };
 
         const version = await versionRepository.fetch(id);
+
+        if (!version) {
+            response.status(404);
+            return;
+        }
+
         const fields = await getChildTemplateFields(id);
 
         response.status(200).send({
@@ -110,7 +134,7 @@ export const templateVersionRouter: Factory<ApiProfile, Router> = (provider) => 
         });
     });
 
-    router.put('/:id(d+)', async (request: PutTemplateVersionRequest, response: PutTemplateVersionResponse) => {
+    router.put('/:id(\\d+)', async (request: PutTemplateVersionRequest, response: PutTemplateVersionResponse) => {
         const { body, hostname, params } = request;
         const { fields, versionNumber } = body;
         const { id: versionNumberId, template } = params;
