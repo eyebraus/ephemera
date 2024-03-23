@@ -1,5 +1,7 @@
 import { TemplateFieldModel, TemplateVersionModel } from '@ephemera/model';
-import { PagedResponseBody } from './common';
+import { Union } from '@ephemera/stdlib';
+import { ErrorCode } from '../constants/error-code';
+import { ErrorBody, PagedResponseBody, ResponseBody } from './common';
 
 type CoreTemplateFieldProperties = Omit<TemplateFieldModel, 'entityId'>;
 
@@ -9,7 +11,15 @@ interface CoreTemplateVersionProperties extends Omit<TemplateVersionModel, 'crea
 
 type CoreTemplateVersionResponse = CoreTemplateVersionProperties & { url: string };
 
-export type GetTemplateVersionResponseBody = CoreTemplateVersionResponse;
-export type ListTemplateVersionsResponseBody = PagedResponseBody<CoreTemplateVersionResponse>;
+export type TemplateVersionErrorCode = ErrorCode | 'InvalidFields';
+
+export const TemplateVersionErrorCode: Union<TemplateVersionErrorCode> = {
+    InvalidFields: 'InvalidFields',
+    NotFound: 'NotFound',
+};
+
+export type DeleteTemplateVersionResponseBody = ErrorBody<TemplateVersionErrorCode>;
+export type GetTemplateVersionResponseBody = ResponseBody<CoreTemplateVersionResponse, TemplateVersionErrorCode>;
+export type ListTemplateVersionsResponseBody = PagedResponseBody<CoreTemplateVersionResponse, TemplateVersionErrorCode>;
 export type PutTemplateVersionRequestBody = Omit<CoreTemplateVersionProperties, 'id'>;
-export type PutTemplateVersionResponseBody = CoreTemplateVersionResponse;
+export type PutTemplateVersionResponseBody = ResponseBody<CoreTemplateVersionResponse, TemplateVersionErrorCode>;

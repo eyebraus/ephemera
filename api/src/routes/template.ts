@@ -1,17 +1,21 @@
 import { TemplateId } from '@ephemera/model';
 import { Factory } from '@ephemera/provide';
+import { isUndefinedOrWhiteSpace } from '@ephemera/stdlib';
 import { Request, Response, Router } from 'express';
 import { ApiProfile } from '../configure';
 import {
+    DeleteTemplateResponseBody,
     GetTemplateResponseBody,
     ListTemplatesResponseBody,
     PatchTemplateRequestBody,
     PatchTemplateResponseBody,
     PutTemplateRequestBody,
     PutTemplateResponseBody,
+    TemplateErrorCode,
 } from '../contract/template';
 import { getCountFromQuery, getSkipFromQuery } from '../utilities/query';
 
+type DeleteTemplateResponse = Response<DeleteTemplateResponseBody>;
 type GetTemplateResponse = Response<GetTemplateResponseBody>;
 type ListTemplatesResponse = Response<ListTemplatesResponseBody>;
 type PatchTemplateRequest = Request<{ id: string }, PatchTemplateResponseBody, PatchTemplateRequestBody>;
@@ -43,7 +47,7 @@ export const templateRouter: Factory<ApiProfile, Router> = (provider) => {
         return await versionRepository.search().where('entityId').equals(`${entityId}/*`).allIds();
     };
 
-    router.delete('/:id', async (request, response) => {
+    router.delete('/:id', async (request, response: DeleteTemplateResponse) => {
         const { params } = request;
         const { id: template } = params;
         const id: TemplateId = { template };
@@ -52,7 +56,11 @@ export const templateRouter: Factory<ApiProfile, Router> = (provider) => {
         const doesTemplateExist = await templateRepository.has(id);
 
         if (!doesTemplateExist) {
-            response.status(404);
+            response.status(404).send({
+                code: TemplateErrorCode.NotFound,
+                message: 'Template not found.',
+            });
+
             return;
         }
 
@@ -78,17 +86,15 @@ export const templateRouter: Factory<ApiProfile, Router> = (provider) => {
         const skip = getSkipFromQuery(request);
         const templates = await templateRepository.search().page(skip, count);
 
-        const value = templates.map<GetTemplateResponseBody>((template) => ({
-            description: template.description,
-            id: template.id,
-            name: template.name,
-            url: getUrlForTemplate(hostname, { template: template.id }),
-        }));
-
         response.status(200).send({
-            count: value.length,
+            count: templates.length,
             start: skip,
-            value,
+            value: templates.map((template) => ({
+                description: template.description,
+                id: template.id,
+                name: template.name,
+                url: getUrlForTemplate(hostname, { template: template.id }),
+            })),
         });
     });
 
@@ -98,7 +104,11 @@ export const templateRouter: Factory<ApiProfile, Router> = (provider) => {
         const template = await templateRepository.fetch({ template: id });
 
         if (!template) {
-            response.status(404);
+            response.status(404).send({
+                code: TemplateErrorCode.NotFound,
+                message: 'Template not found.',
+            });
+
             return;
         }
 
@@ -112,13 +122,35 @@ export const templateRouter: Factory<ApiProfile, Router> = (provider) => {
 
     router.patch('/:id', async (request: PatchTemplateRequest, response: PatchTemplateResponse) => {
         const { body, hostname, params } = request;
+        const { description, name } = body;
         const { id } = params;
-        const timestamp = new Date();
+
+        if (isUndefinedOrWhiteSpace(description)) {
+            response.status(400).send({
+                code: TemplateErrorCode.InvalidDescription,
+                message: 'Description is not valid.',
+            });
+
+            return;
+        }
+
+        if (isUndefinedOrWhiteSpace(name)) {
+            response.status(400).send({
+                code: TemplateErrorCode.InvalidName,
+                message: 'Name is not valid.',
+            });
+
+            return;
+        }
 
         const existingTemplate = await templateRepository.fetch({ template: id });
 
         if (!existingTemplate) {
-            response.status(404);
+            response.status(404).send({
+                code: TemplateErrorCode.NotFound,
+                message: 'Template not found.',
+            });
+
             return;
         }
 
@@ -127,7 +159,7 @@ export const templateRouter: Factory<ApiProfile, Router> = (provider) => {
             {
                 ...existingTemplate,
                 ...body,
-                modifiedAt: timestamp,
+                modifiedAt: new Date(),
             },
         );
 
@@ -141,7 +173,27 @@ export const templateRouter: Factory<ApiProfile, Router> = (provider) => {
 
     router.put('/:id', async (request: PutTemplateRequest, response: PutTemplateResponse) => {
         const { body, hostname, params } = request;
+        const { description, name } = body;
         const { id } = params;
+
+        if (isUndefinedOrWhiteSpace(description)) {
+            response.status(400).send({
+                code: TemplateErrorCode.InvalidDescription,
+                message: 'Description is not valid.',
+            });
+
+            return;
+        }
+
+        if (isUndefinedOrWhiteSpace(name)) {
+            response.status(400).send({
+                code: TemplateErrorCode.InvalidName,
+                message: 'Name is not valid.',
+            });
+
+            return;
+        }
+
         const timestamp = new Date();
 
         const template = await templateRepository.save(
