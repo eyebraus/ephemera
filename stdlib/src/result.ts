@@ -15,6 +15,24 @@ interface FailureWithoutContent {
  */
 export type Failure<TContent = void> = IfVoid<TContent, FailureWithoutContent, FailureWithContent<TContent>>;
 
+/**
+ * Creates a {@link Failure} with content.
+ * @param content Content on the failure
+ * @returns Failure with content
+ */
+export const FailureWithContent = <TContent>(content: TContent): FailureWithContent<TContent> => ({
+    content,
+    successful: false,
+});
+
+/**
+ * Creates a {@link Failure} without content.
+ * @returns Failure without content
+ */
+export const FailureWithoutContent = (): FailureWithoutContent => ({
+    successful: false,
+});
+
 interface SuccessWithContent<TContent> {
     content: TContent;
     successful: true;
@@ -28,6 +46,24 @@ interface SuccessWithoutContent {
  * Successful result with optional content.
  */
 export type Success<TContent = void> = IfVoid<TContent, SuccessWithoutContent, SuccessWithContent<TContent>>;
+
+/**
+ * Creates a {@link Success} with content.
+ * @param content Content on the success
+ * @returns Success with content
+ */
+export const SuccessWithContent = <TContent>(content: TContent): SuccessWithContent<TContent> => ({
+    content,
+    successful: true,
+});
+
+/**
+ * Creates a {@link Failure} without content.
+ * @returns Failure without content
+ */
+export const SuccessWithoutContent = (): SuccessWithoutContent => ({
+    successful: true,
+});
 
 /**
  * Result of an operation, the outcome of which could be successful or unsuccessful.

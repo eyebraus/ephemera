@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "outDir": "../dist/out-tsc",
+        "types": ["node", "express"]
+    },
+    "exclude": [
+        "jest.config.ts",
+        "node_modules",
+        "test/**/*.ts",
+        "test/**/*.ts"
+    ],
+    "extends": "./tsconfig.json",
+    "include": ["src/**/*.ts"]
+}

@@ -28,6 +28,22 @@
         ],
         "sharedGlobals": []
     },
+    "plugins": [
+        {
+            "plugin": "@nx/eslint/plugin",
+            "options": {
+                "targetName": "lint"
+            }
+        },
+        {
+            "plugin": "@nx/webpack/plugin",
+            "options": {
+                "buildTargetName": "build",
+                "previewTargetName": "preview",
+                "serveTargetName": "serve"
+            }
+        }
+    ],
     "targetDefaults": {
         "build": {
             "dependsOn": ["^build"],
@@ -46,6 +62,11 @@
         },
         "test": {
             "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"]
+        },
+        "@nx/js:tsc": {
+            "cache": true,
+            "dependsOn": ["^build"],
+            "inputs": ["production", "^production"]
         }
     },
     "tasksRunnerOptions": {
