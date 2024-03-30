@@ -1,6 +1,6 @@
-import { TemplateFieldModel, TemplateId, TemplateVersionId } from '@ephemera/model';
+import { TemplateFieldKind, TemplateFieldModel, TemplateId, TemplateVersionId } from '@ephemera/model';
 import { Factory } from '@ephemera/provide';
-import { isUndefinedOrWhiteSpace } from '@ephemera/stdlib';
+import { validateRequestBody } from '@ephemera/services';
 import { Request, Response, Router } from 'express';
 import { ApiProfile } from '../configure';
 import {
@@ -34,24 +34,109 @@ const getUrlForTemplateVersion = (hostname: string, tokens: TemplateVersionId) =
     return `https://${hostname}/templates/${template.toLowerCase()}/versions/${versionNumber}`;
 };
 
-const isInvalidField = (field: PutTemplateVersionRequestBody['fields'][0]) => {
-    const { allowed, description, id, kind, name } = field;
-
-    return (
-        (allowed && allowed.length < 1) ||
-        isUndefinedOrWhiteSpace(description) ||
-        isUndefinedOrWhiteSpace(id) ||
-        isUndefinedOrWhiteSpace(kind) ||
-        isUndefinedOrWhiteSpace(name)
-    );
-};
-
 const removeEntityIdFromFields = (fields: TemplateFieldModel[]) =>
     fields.map((field) => {
         const { entityId: _, ...fieldResponse } = field;
 
         return fieldResponse;
     });
+
+const validatePutRequestBody = validateRequestBody<TemplateVersionErrorCode>((builder) => {
+    builder.addField('fields', (field) => {
+        field
+            .isRequired({ code: TemplateVersionErrorCode.MissingFields, message: 'Property "fields" must be given.' })
+            .everyItemShouldPass((member) => {
+                member.addField('allowed', (field) => {
+                    field
+                        .shouldBeArray({
+                            code: TemplateVersionErrorCode.InvalidFieldAllowed,
+                            message: 'Property "allowed" must be an array.',
+                        })
+                        .shouldBeLongerThan(0, {
+                            code: TemplateVersionErrorCode.InvalidFieldAllowed,
+                            message: 'Property "allowed" cannot be empty.',
+                        });
+                });
+
+                member.addField('description', (field) => {
+                    field
+                        .isRequired({
+                            code: TemplateVersionErrorCode.MissingFieldDescription,
+                            message: 'Property "description" must be given.',
+                        })
+                        .shouldNotBeBlank({
+                            code: TemplateVersionErrorCode.InvalidFieldDescription,
+                            message: 'Property "description" cannot be empty.',
+                        });
+                });
+
+                member.addField('id', (field) => {
+                    const invalidOptions = {
+                        code: TemplateVersionErrorCode.InvalidFieldId,
+                        message:
+                            'Property "id" is not of a valid format. Value should be between 3 and 64 characters and only include alphanums, _s, and -s.',
+                    };
+
+                    field
+                        .isRequired({
+                            code: TemplateVersionErrorCode.MissingFieldId,
+                            message: 'Property "id" must be given.',
+                        })
+                        .shouldBeLongerThan(2, invalidOptions)
+                        .shouldBeShorterThan(65, invalidOptions)
+                        .shouldMatch(/^[A-Za-z0-9][A-Za-z0-9-_]+[A-Za-z0-9]$/, invalidOptions);
+                });
+
+                member.addField('kind', (field) => {
+                    field
+                        .isRequired({
+                            code: TemplateVersionErrorCode.MissingFieldKind,
+                            message: 'Property "kind" must be given.',
+                        })
+                        .shouldBeIn(Object.values(TemplateFieldKind), {
+                            code: TemplateVersionErrorCode.InvalidFieldKind,
+                            message: 'Property "kind" is not one of the expected values.',
+                        });
+                });
+
+                member.addField('name', (field) => {
+                    field
+                        .isRequired({
+                            code: TemplateVersionErrorCode.MissingFieldName,
+                            message: 'Property "name" must be given.',
+                        })
+                        .shouldNotBeBlank({
+                            code: TemplateVersionErrorCode.InvalidFieldName,
+                            message: 'Property "name" cannot be empty.',
+                        });
+                });
+
+                member.addField('required', (field) => {
+                    field
+                        .isRequired({
+                            code: TemplateVersionErrorCode.MissingFieldRequired,
+                            message: 'Property "required" must be given.',
+                        })
+                        .shouldBeBoolean({
+                            code: TemplateVersionErrorCode.InvalidFieldRequired,
+                            message: 'Property "required" must be boolean.',
+                        });
+                });
+            });
+    });
+
+    builder.addField('versionNumber', (field) => {
+        field
+            .isRequired({
+                code: TemplateVersionErrorCode.MissingVersionNumber,
+                message: 'Property "versionNumber" must be given.',
+            })
+            .shouldBeNumber({
+                code: TemplateVersionErrorCode.InvalidVersionNumber,
+                message: 'Property "versionNumber" must be number.',
+            });
+    });
+});
 
 export const templateVersionRouter: Factory<ApiProfile, Router> = (provider) => {
     const fieldRepository = provider('templateFieldRepository');
@@ -193,55 +278,49 @@ export const templateVersionRouter: Factory<ApiProfile, Router> = (provider) => 
         });
     });
 
-    router.put('/:id(\\d+)', async (request: PutTemplateVersionRequest, response: PutTemplateVersionResponse) => {
-        const { body, hostname, params } = request;
-        const { fields, versionNumber } = body;
-        const { id: versionNumberId, template } = params;
-        const parentId: TemplateId = { template };
-        const id: TemplateVersionId = { ...parentId, versionNumber: versionNumberId };
+    router.put(
+        '/:id(\\d+)',
+        validatePutRequestBody,
+        async (request: PutTemplateVersionRequest, response: PutTemplateVersionResponse) => {
+            const { body, hostname, params } = request;
+            const { fields, versionNumber } = body;
+            const { id: versionNumberId, template } = params;
+            const parentId: TemplateId = { template };
+            const id: TemplateVersionId = { ...parentId, versionNumber: versionNumberId };
 
-        // Check validity of request
-        if (fields.some(isInvalidField)) {
-            response.status(400).send({
-                code: TemplateVersionErrorCode.InvalidFields,
-                message: 'One or more fields are invalid.',
+            // Check for the existence of the template. If it doesn't exist, 404
+            const doesTemplateExist = await templateRepository.has(parentId);
+
+            if (!doesTemplateExist) {
+                response.status(404).send({
+                    code: TemplateVersionErrorCode.NotFound,
+                    message: 'Template not found.',
+                });
+
+                return;
+            }
+
+            const timestamp = new Date();
+
+            const versionModel = await versionRepository.save(id, {
+                createdAt: timestamp,
+                id: versionNumberId,
+                modifiedAt: timestamp,
+                versionNumber,
             });
 
-            return;
-        }
+            const fieldModels = await Promise.all(
+                fields.map((field) => fieldRepository.save({ ...id, field: field.id }, field)),
+            );
 
-        // Check for the existence of the template. If it doesn't exist, 404
-        const doesTemplateExist = await templateRepository.has(parentId);
-
-        if (!doesTemplateExist) {
-            response.status(404).send({
-                code: TemplateVersionErrorCode.NotFound,
-                message: 'Template not found.',
+            response.status(201).send({
+                fields: removeEntityIdFromFields(fieldModels),
+                id: versionModel.id,
+                url: getUrlForTemplateVersion(hostname, id),
+                versionNumber: versionModel.versionNumber,
             });
-
-            return;
-        }
-
-        const timestamp = new Date();
-
-        const versionModel = await versionRepository.save(id, {
-            createdAt: timestamp,
-            id: versionNumberId,
-            modifiedAt: timestamp,
-            versionNumber,
-        });
-
-        const fieldModels = await Promise.all(
-            fields.map((field) => fieldRepository.save({ ...id, field: field.id }, field)),
-        );
-
-        response.status(201).send({
-            fields: removeEntityIdFromFields(fieldModels),
-            id: versionModel.id,
-            url: getUrlForTemplateVersion(hostname, id),
-            versionNumber: versionModel.versionNumber,
-        });
-    });
+        },
+    );
 
     return router;
 };

@@ -8,6 +8,8 @@ import { Pair, key, value } from './pair';
 export const compact = <TItem>(value: (TItem | undefined)[]): TItem[] =>
     value.filter((item) => item !== undefined) as TItem[];
 
+export const first = <TItem>(value: TItem[]): TItem | undefined => (value.length > 0 ? value[0] : undefined);
+
 export const group = <TKey, TValue>(
     items: TValue[],
     groupBy: (value: TValue, index: number) => TKey,
@@ -28,5 +30,8 @@ export const groupInto = <TValue>(value: TValue[], groupBy: (value: TValue, inde
     Map(group(value, groupBy));
 
 export const isArray = <TItem>(value: unknown): value is TItem[] => Array.isArray(value);
+
+export const last = <TItem>(value: TItem[]): TItem | undefined =>
+    value.length > 0 ? value[value.length - 1] : undefined;
 
 export const unique = <TItem>(value: TItem[]): TItem[] => [...new Set(value)];

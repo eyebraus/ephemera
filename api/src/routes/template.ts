@@ -1,6 +1,6 @@
 import { TemplateId } from '@ephemera/model';
 import { Factory } from '@ephemera/provide';
-import { isUndefinedOrWhiteSpace } from '@ephemera/stdlib';
+import { validateRequestBody } from '@ephemera/services';
 import { Request, Response, Router } from 'express';
 import { ApiProfile } from '../configure';
 import {
@@ -28,6 +28,48 @@ const getUrlForTemplate = (hostname: string, id: TemplateId) => {
 
     return `https://${hostname}/template/${template.toLowerCase()}`;
 };
+
+const validatePatchRequestBody = validateRequestBody<TemplateErrorCode>((builder) => {
+    builder.addField('description', (field) => {
+        field.shouldNotBeBlank({
+            code: TemplateErrorCode.InvalidDescription,
+            message: 'Description cannot be empty.',
+        });
+    });
+
+    builder.addField('name', (field) => {
+        field.shouldNotBeBlank({
+            code: TemplateErrorCode.InvalidName,
+            message: 'Name cannot be empty.',
+        });
+    });
+});
+
+const validatePutRequestBody = validateRequestBody<TemplateErrorCode>((builder) => {
+    builder.addField('description', (field) => {
+        field
+            .isRequired({
+                code: TemplateErrorCode.MissingDescription,
+                message: 'Property "description" must be given.',
+            })
+            .shouldNotBeBlank({
+                code: TemplateErrorCode.InvalidDescription,
+                message: 'Property "description" cannot be empty.',
+            });
+    });
+
+    builder.addField('name', (field) => {
+        field
+            .isRequired({
+                code: TemplateErrorCode.MissingName,
+                message: 'Property "name" must be given.',
+            })
+            .shouldNotBeBlank({
+                code: TemplateErrorCode.InvalidName,
+                message: 'Property "name" cannot be empty.',
+            });
+    });
+});
 
 export const templateRouter: Factory<ApiProfile, Router> = (provider) => {
     const fieldRepository = provider('templateFieldRepository');
@@ -120,79 +162,45 @@ export const templateRouter: Factory<ApiProfile, Router> = (provider) => {
         });
     });
 
-    router.patch('/:id', async (request: PatchTemplateRequest, response: PatchTemplateResponse) => {
+    router.patch(
+        '/:id',
+        validatePatchRequestBody,
+        async (request: PatchTemplateRequest, response: PatchTemplateResponse) => {
+            const { body, hostname, params } = request;
+            const { id } = params;
+
+            const existingTemplate = await templateRepository.fetch({ template: id });
+
+            if (!existingTemplate) {
+                response.status(404).send({
+                    code: TemplateErrorCode.NotFound,
+                    message: 'Template not found.',
+                });
+
+                return;
+            }
+
+            const template = await templateRepository.save(
+                { template: id },
+                {
+                    ...existingTemplate,
+                    ...body,
+                    modifiedAt: new Date(),
+                },
+            );
+
+            response.status(200).send({
+                description: template.description,
+                id: template.id,
+                name: template.name,
+                url: getUrlForTemplate(hostname, { template: id }),
+            });
+        },
+    );
+
+    router.put('/:id', validatePutRequestBody, async (request: PutTemplateRequest, response: PutTemplateResponse) => {
         const { body, hostname, params } = request;
-        const { description, name } = body;
         const { id } = params;
-
-        if (isUndefinedOrWhiteSpace(description)) {
-            response.status(400).send({
-                code: TemplateErrorCode.InvalidDescription,
-                message: 'Description is not valid.',
-            });
-
-            return;
-        }
-
-        if (isUndefinedOrWhiteSpace(name)) {
-            response.status(400).send({
-                code: TemplateErrorCode.InvalidName,
-                message: 'Name is not valid.',
-            });
-
-            return;
-        }
-
-        const existingTemplate = await templateRepository.fetch({ template: id });
-
-        if (!existingTemplate) {
-            response.status(404).send({
-                code: TemplateErrorCode.NotFound,
-                message: 'Template not found.',
-            });
-
-            return;
-        }
-
-        const template = await templateRepository.save(
-            { template: id },
-            {
-                ...existingTemplate,
-                ...body,
-                modifiedAt: new Date(),
-            },
-        );
-
-        response.status(200).send({
-            description: template.description,
-            id: template.id,
-            name: template.name,
-            url: getUrlForTemplate(hostname, { template: id }),
-        });
-    });
-
-    router.put('/:id', async (request: PutTemplateRequest, response: PutTemplateResponse) => {
-        const { body, hostname, params } = request;
-        const { description, name } = body;
-        const { id } = params;
-
-        if (isUndefinedOrWhiteSpace(description)) {
-            response.status(400).send({
-                code: TemplateErrorCode.InvalidDescription,
-                message: 'Description is not valid.',
-            });
-
-            return;
-        }
-
-        if (isUndefinedOrWhiteSpace(name)) {
-            response.status(400).send({
-                code: TemplateErrorCode.InvalidName,
-                message: 'Name is not valid.',
-            });
-
-            return;
-        }
 
         const timestamp = new Date();
 

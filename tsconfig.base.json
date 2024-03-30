@@ -23,6 +23,7 @@
             "@ephemera/data": ["data/src/index.ts"],
             "@ephemera/model": ["model/src/index.ts"],
             "@ephemera/provide": ["provide/src/index.ts"],
+            "@ephemera/services": ["services/src/index.ts"],
             "@ephemera/stdlib": ["stdlib/src/index.ts"]
         },
         "resolveJsonModule": true,
