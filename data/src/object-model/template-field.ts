@@ -1,4 +1,4 @@
-import { TemplateFieldId, TemplateFieldModel } from '@ephemera/model';
+import { TemplateFieldId, TemplateFieldKind, TemplateFieldModel } from '@ephemera/model';
 import { Factory } from '@ephemera/provide';
 import { CoreError } from '@ephemera/stdlib';
 import { Schema } from 'redis-om';
@@ -34,7 +34,7 @@ export const templateFieldRepository: Factory<DataProfile, RedisRepository<Templ
             description: entity['description'] as string,
             entityId: entity['entityId'] as string,
             id: entity['id'] as string,
-            kind: entity['kind'] as string,
+            kind: entity['kind'] as TemplateFieldKind,
             name: entity['name'] as string,
             required: entity['required'] as boolean,
         }),

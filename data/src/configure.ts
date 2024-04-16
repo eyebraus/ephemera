@@ -22,7 +22,9 @@ export interface DataProfile {
 }
 
 export const dataConfiguration: ProviderConfiguration<DataProfile> = {
-    redisClient: [Lifetime.Static, (): ReturnType<typeof createClient> => createClient()],
+    // TODO: make Redis URL configurable
+    redisClient: [Lifetime.Static, (): ReturnType<typeof createClient> => createClient({ url: 'redis://redis:6379' })],
+    // redisClient: [Lifetime.Static, (): ReturnType<typeof createClient> => createClient()],
     redisRepositoryBuilder,
     templateFieldRepository,
     templateRepository,
