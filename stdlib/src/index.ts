@@ -13,6 +13,7 @@ export * from './once';
 export * from './one-or-many';
 export * from './optional';
 export * from './pair';
+export * from './promise';
 export * from './result';
 export * from './string';
 export * from './try';

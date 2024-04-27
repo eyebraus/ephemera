@@ -71,10 +71,10 @@ const validatePutRequestBody = validateRequestBody<TemplateErrorCode>((builder) 
     });
 });
 
-export const templateRouter: Factory<ApiProfile, Router> = (provider) => {
-    const fieldRepository = provider('templateFieldRepository');
-    const templateRepository = provider('templateRepository');
-    const versionRepository = provider('templateVersionRepository');
+export const templateRouter: Factory<ApiProfile, Router> = (getUnit) => {
+    const fieldRepository = getUnit('templateFieldRepository');
+    const templateRepository = getUnit('templateRepository');
+    const versionRepository = getUnit('templateVersionRepository');
     const router = Router({ mergeParams: true });
 
     const getIdsOfChildTemplateFields = async (id: TemplateId) => {

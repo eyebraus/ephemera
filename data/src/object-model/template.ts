@@ -11,8 +11,8 @@ const entityIdPattern = /^[A-Za-z0-9-]{4,64}$/;
  * Factories
  */
 
-export const templateRepository: Factory<DataProfile, RedisRepository<TemplateModel, TemplateId>> = (provide) => {
-    const redisRepositoryBuilder = provide('redisRepositoryBuilder');
+export const templateRepository: Factory<DataProfile, RedisRepository<TemplateModel, TemplateId>> = (getUnit) => {
+    const redisRepositoryBuilder = getUnit('redisRepositoryBuilder');
 
     return redisRepositoryBuilder<TemplateModel, TemplateId>({
         getEntityId: (id) => id.template.toLowerCase(),

@@ -12,9 +12,9 @@ const entityIdPattern = /^[A-Za-z0-9-]{4,64}\/[A-Za-z0-9-]{4,64}\/[A-Za-z0-9-]{4
  */
 
 export const templateFieldRepository: Factory<DataProfile, RedisRepository<TemplateFieldModel, TemplateFieldId>> = (
-    provide,
+    getUnit,
 ) => {
-    const redisRepositoryBuilder = provide('redisRepositoryBuilder');
+    const redisRepositoryBuilder = getUnit('redisRepositoryBuilder');
 
     return redisRepositoryBuilder<TemplateFieldModel, TemplateFieldId>({
         getEntityId: (id) => [id.template.toLowerCase(), id.versionNumber, id.field.toLowerCase()].join('/'),

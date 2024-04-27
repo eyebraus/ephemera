@@ -1,16 +1,18 @@
-import { createProvider } from '@ephemera/provide';
+import { provide } from '@ephemera/provide';
 import express from 'express';
-import { apiConfiguration } from './configure';
+import { apiProfile } from './configure';
 
-const provide = createProvider(apiConfiguration);
+const { getUnit } = await provide(apiProfile, (builder) => {
+    builder.addYamlFile('/config.yaml').addYamlFile(`/config.${process.env.NODE_ENV}.yaml`);
+});
 
 const app = express();
 app.use(express.json());
 
 const port = process.env.PORT || 3333;
 
-app.use('/templates', provide('templateRouter'));
-app.use('/templates/:template/versions', provide('templateVersionRouter'));
+app.use('/templates', getUnit('templateRouter'));
+app.use('/templates/:template/versions', getUnit('templateVersionRouter'));
 
 const server = app.listen(port, () => {
     console.log(`Listening at http://localhost:${port}/api`);

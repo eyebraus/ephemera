@@ -1,12 +1,33 @@
 name: ephemera
 
+configs:
+    api_config:
+        file: ./api/config.yaml
+
+    api_config_development:
+        file: ./api/config.development.yaml
+
+    api_config_local:
+        file: ./api/config.local.yaml
+
+    api_config_production:
+        file: ./api/config.production.yaml
+
 services:
     api:
         build:
+            args:
+                environment: local
+
             context: .
             dockerfile: api.dockerfile
 
         command: --inspect=0.0.0.0:9229 /usr/src/dist/api/main.js
+
+        configs:
+            - api_config
+            - api_local
+
         container_name: ephemera.api
 
         depends_on:
@@ -44,6 +65,9 @@ services:
                 - &rebuild-tsconfig-base-json
                   action: rebuild
                   path: ./tsconfig.base.json
+
+        environment:
+            NODE_ENV: local
 
         ports:
             - 10331:3333

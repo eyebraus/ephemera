@@ -138,10 +138,10 @@ const validatePutRequestBody = validateRequestBody<TemplateVersionErrorCode>((bu
     });
 });
 
-export const templateVersionRouter: Factory<ApiProfile, Router> = (provider) => {
-    const fieldRepository = provider('templateFieldRepository');
-    const templateRepository = provider('templateRepository');
-    const versionRepository = provider('templateVersionRepository');
+export const templateVersionRouter: Factory<ApiProfile, Router> = (getUnit) => {
+    const fieldRepository = getUnit('templateFieldRepository');
+    const templateRepository = getUnit('templateRepository');
+    const versionRepository = getUnit('templateVersionRepository');
     const router = Router({ mergeParams: true });
 
     const getChildTemplateFields = async (id: TemplateVersionId) => {
