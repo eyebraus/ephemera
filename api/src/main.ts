@@ -1,9 +1,15 @@
 import { provide } from '@ephemera/provide';
+import { isUndefinedOrWhiteSpace } from '@ephemera/stdlib';
 import express from 'express';
+import path from 'path';
 import { apiProfile } from './configure';
 
+const environment = isUndefinedOrWhiteSpace(process.env.NODE_ENV) ? 'local' : process.env.NODE_ENV;
+
 const { getUnit } = await provide(apiProfile, (builder) => {
-    builder.addYamlFile('/config.yaml').addYamlFile(`/config.${process.env.NODE_ENV}.yaml`);
+    builder
+        .addYamlFile(path.join(process.env.CONFIG_DIRECTORY ?? __dirname, 'config.yaml'))
+        .addYamlFile(path.join(process.env.CONFIG_DIRECTORY ?? __dirname, `config.${environment}.yaml`));
 });
 
 const app = express();

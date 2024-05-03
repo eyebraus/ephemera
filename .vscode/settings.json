@@ -1,11 +1,35 @@
 {
+    // Prettier settings
+    "prettier.arrowParens": "always",
+    "prettier.bracketSameLine": false,
+    "prettier.bracketSpacing": true,
+    "prettier.embeddedLanguageFormatting": "auto",
+    "prettier.endOfLine": "lf",
+    "prettier.htmlWhitespaceSensitivity": "strict",
+    "prettier.insertPragma": false,
+    "prettier.jsxSingleQuote": false,
+    "prettier.printWidth": 120,
+    "prettier.proseWrap": "preserve",
+    "prettier.quoteProps": "as-needed",
+    "prettier.requireConfig": true,
+    "prettier.requirePragma": false,
+    "prettier.semi": true,
+    "prettier.singleAttributePerLine": false,
+    "prettier.singleQuote": true,
+    "prettier.tabWidth": 4,
+    "prettier.trailingComma": "all",
+    "prettier.useTabs": false,
+    "prettier.vueIndentScriptAndStyle": false,
+
+    // Docker Compose settings
     "[dockercompose]": {
         "diffEditor.ignoreTrimWhitespace": false,
         "editor.autoIndent": "advanced",
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true,
         "editor.insertSpaces": true,
-        "editor.tabSize": 4,
+        "editor.tabSize": 2,
+        "prettier.tabWidth": 2,
     },
 
     // JavaScript settings
@@ -29,28 +53,6 @@
         "editor.suggest.insertMode": "insert",
     },
 
-    // Prettier settings
-    "prettier.arrowParens": "always",
-    "prettier.bracketSameLine": false,
-    "prettier.bracketSpacing": true,
-    "prettier.embeddedLanguageFormatting": "auto",
-    "prettier.endOfLine": "lf",
-    "prettier.htmlWhitespaceSensitivity": "strict",
-    "prettier.insertPragma": false,
-    "prettier.jsxSingleQuote": false,
-    "prettier.printWidth": 120,
-    "prettier.proseWrap": "preserve",
-    "prettier.quoteProps": "as-needed",
-    "prettier.requireConfig": true,
-    "prettier.requirePragma": false,
-    "prettier.semi": true,
-    "prettier.singleAttributePerLine": false,
-    "prettier.singleQuote": true,
-    "prettier.tabWidth": 4,
-    "prettier.trailingComma": "all",
-    "prettier.useTabs": false,
-    "prettier.vueIndentScriptAndStyle": false,
-
     // TypeScript settings
     "typescript.preferences.importModuleSpecifier": "relative",
     "typescript.tsdk": "node_modules/typescript/lib",
@@ -69,5 +71,16 @@
         },
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true,
-    }
+    },
+
+    // YAML settings
+    "[yaml]": {
+        "diffEditor.ignoreTrimWhitespace": false,
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "prettier.tabWidth": 2,
+    },
 }

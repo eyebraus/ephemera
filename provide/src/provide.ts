@@ -1,4 +1,4 @@
-import { isArray, isObject, once } from '@ephemera/stdlib';
+import { isArray, isObject, isUndefinedOrWhiteSpace, once } from '@ephemera/stdlib';
 import { ConfigurationBuilder, build } from './configuration';
 import {
     ConfigurationEntry,
@@ -27,15 +27,13 @@ const getValueFromConfiguration = (
     key: string,
     originalKey: string,
 ): ConfigurationSetting => {
-    const path = key.split('/');
-
     // If we're at the end of the path, create the configuration setting
-    if (path.length < 1) {
+    if (isUndefinedOrWhiteSpace(key)) {
         return ConfigurationSetting(configuration, originalKey);
     }
 
     // Otherwise, attempt to index further into the configuration depending on its kind
-    const [token, ...remaining] = path;
+    const [token, ...remaining] = key.split('/');
     const nextKey = remaining.join('/');
 
     if (isArray(configuration)) {
