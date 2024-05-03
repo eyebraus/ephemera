@@ -22,14 +22,14 @@ FROM preamble as install
 FROM install as development
     # Build
     ENV NODE_ENV development
-    RUN ["./node_modules/nx/bin/nx.js", "run", "api:build:development"]
+    RUN ["npx", "nx", "run", "api:build:development"]
 
 FROM install as local
     # Build
     ENV NODE_ENV local
-    RUN ["./node_modules/nx/bin/nx.js", "run", "api:build:development"]
+    RUN ["npx", "nx", "run", "api:build:development"]
 
 FROM install as production
     # Build
     ENV NODE_ENV production
-    RUN ["./node_modules/nx/bin/nx.js", "run", "api:build:production"]
+    RUN ["npx", "nx", "run", "api:build:production"]
