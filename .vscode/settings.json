@@ -1,25 +1,4 @@
 {
-    // JavaScript settings
-    "javascript.preferences.importModuleSpecifier": "relative",
-
-    "[javascript]": {
-        "editor.codeActionsOnSave": {
-            "source.organizeImports": "explicit"
-        },
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true,
-    },
-
-    // JSON settings
-    "[json]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true,
-        "editor.quickSuggestions": {
-            "strings": true,
-        },
-        "editor.suggest.insertMode": "insert",
-    },
-
     // Prettier settings
     "prettier.arrowParens": "always",
     "prettier.bracketSameLine": false,
@@ -42,6 +21,38 @@
     "prettier.useTabs": false,
     "prettier.vueIndentScriptAndStyle": false,
 
+    // Docker Compose settings
+    "[dockercompose]": {
+        "diffEditor.ignoreTrimWhitespace": false,
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "prettier.tabWidth": 2,
+    },
+
+    // JavaScript settings
+    "javascript.preferences.importModuleSpecifier": "relative",
+
+    "[javascript]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        },
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+    },
+
+    // JSON settings
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.quickSuggestions": {
+            "strings": true,
+        },
+        "editor.suggest.insertMode": "insert",
+    },
+
     // TypeScript settings
     "typescript.preferences.importModuleSpecifier": "relative",
     "typescript.tsdk": "node_modules/typescript/lib",
@@ -60,5 +71,16 @@
         },
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true,
+    },
+
+    // YAML settings
+    "[yaml]": {
+        "diffEditor.ignoreTrimWhitespace": false,
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "prettier.tabWidth": 2,
     },
 }

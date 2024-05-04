@@ -1,0 +1,77 @@
+name: ephemera
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api.dockerfile
+      target: local
+
+    command: --inspect=0.0.0.0:9229 main.js
+    container_name: ephemera.api
+
+    depends_on:
+      - redis
+
+    develop:
+      watch:
+        # Changes requiring rebuild
+        - action: rebuild
+          ignore:
+            - 'config.yaml'
+            - 'config.*.yaml'
+          path: ./api
+        - &rebuild-data
+          action: rebuild
+          path: ./data
+        - &rebuild-model
+          action: rebuild
+          path: ./model
+        - &rebuild-nx-json
+          action: rebuild
+          path: ./nx.json
+        - &rebuild-package-json
+          action: rebuild
+          path: ./package.json
+        - &rebuild-package-lock-json
+          action: rebuild
+          path: ./package-lock.json
+        - &rebuild-provide
+          action: rebuild
+          path: ./provide
+        - &rebuild-services
+          action: rebuild
+          path: ./services
+        - &rebuild-stdlib
+          action: rebuild
+          path: ./stdlib
+        - &rebuild-tsconfig-base-json
+          action: rebuild
+          path: ./tsconfig.base.json
+
+        # Changes requiring sync & restart
+        - &sync-restart-api-config-yaml
+          action: sync+restart
+          path: ./api/config.yaml
+          target: /ephemera/dist/api/config.yaml
+        - &sync-restart-api-config-local-yaml
+          action: sync+restart
+          path: ./api/config.local.yaml
+          target: /ephemera/dist/api/config.local.yaml
+
+    ports:
+      - 10331:3333
+      - 20331:9229
+
+    working_dir: /ephemera/dist/api/
+
+  redis:
+    container_name: ephemera.redis
+
+    environment:
+      REDIS_ARGS: '--save 30 1 --appendonly yes'
+
+    image: redis/redis-stack-server:latest
+
+    ports:
+      - 6379:6379

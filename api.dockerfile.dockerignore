@@ -1,0 +1,19 @@
+# Ignore everything by default
+*
+
+# Include api files and necessary files from root
+!/api
+!/data
+!/model
+!/provide
+!/services
+!/stdlib
+!nx.json
+!package-lock.json
+!package.json
+!tsconfig.base.json
+
+# Exclude unnecessary files from subdirectories
+*/.eslintrc.json
+*/jest.config.ts
+*/tsconfig.test.json

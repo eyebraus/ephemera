@@ -537,8 +537,8 @@ const createWhereClause = <
  * Factories
  */
 
-export const redisRepositoryBuilder: Factory<DataProfile, RedisRepositoryBuilder> = (provide) => {
-    const redisClient = provide('redisClient');
+export const redisRepositoryBuilder: Factory<DataProfile, RedisRepositoryBuilder> = (getUnit) => {
+    const redisClient = getUnit('redisClient');
     redisClient.connect();
 
     return (configuration) => {

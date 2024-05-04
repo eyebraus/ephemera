@@ -14,8 +14,8 @@ const entityIdPattern = /^[A-Za-z0-9-]{4,64}\/[A-Za-z0-9-]{4,64}$/;
 export const templateVersionRepository: Factory<
     DataProfile,
     RedisRepository<TemplateVersionModel, TemplateVersionId>
-> = (provide) => {
-    const redisRepositoryBuilder = provide('redisRepositoryBuilder');
+> = (getUnit) => {
+    const redisRepositoryBuilder = getUnit('redisRepositoryBuilder');
 
     return redisRepositoryBuilder<TemplateVersionModel, TemplateVersionId>({
         getEntityId: (id) => [id.template.toLowerCase(), id.versionNumber].join('/'),
