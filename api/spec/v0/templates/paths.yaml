@@ -1,0 +1,195 @@
+TemplateCollectionPath:
+  parameters:
+    - $ref: '../parameters.yaml#/OrganizationId'
+
+  get:
+    responses:
+      200:
+        description: Request to list templates succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TemplateCollectionResponseBody'
+      404:
+        description: Request to list templates failed because at least one parent resource could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+TemplatePath:
+  parameters:
+    - $ref: '../parameters.yaml#/OrganizationId'
+    - $ref: '../parameters.yaml#/TemplateId'
+
+  delete:
+    responses:
+      204:
+        description: Request to delete a template succeeded.
+      404:
+        description: Request to delete a template failed because template could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+  get:
+    responses:
+      200:
+        description: Request to get a template succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TemplateResponseBody'
+      404:
+        description: Request to get a template failed because template could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+  patch:
+    requestBody:
+      description: Request to edit an existing template.
+      content:
+        application/json:
+          schema:
+            $ref: './schemas.yaml#/Template'
+      required: true
+
+    responses:
+      200:
+        description: Request to edit a template succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TemplateResponseBody'
+      400:
+        description: Request to edit a template failed because request body was invalid.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+      404:
+        description: Request to edit a template failed because template could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+  put:
+    requestBody:
+      description: Request to create a new template or update an existing one.
+      content:
+        application/json:
+          schema:
+            $ref: './schemas.yaml#/CreateOrUpdateTemplateRequestBody'
+      required: true
+
+    responses:
+      200:
+        description: Request to update a template succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TemplateResponseBody'
+      201:
+        description: Request to create a template succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TemplateResponseBody'
+      400:
+        description: Request to create a template failed because request body was invalid.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+      404:
+        description: Request to create a template failed because one of its parent resources could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+TemplateRevisionCollectionPath:
+  parameters:
+    - $ref: '../parameters.yaml#/OrganizationId'
+    - $ref: '../parameters.yaml#/TemplateId'
+
+  get:
+    responses:
+      200:
+        description: Request to list template revisions succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TemplateRevisionCollectionResponseBody'
+      404:
+        description: Request to list template revisions failed because at least one parent resource could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+TemplateRevisionPath:
+  parameters:
+    - $ref: '../parameters.yaml#/OrganizationId'
+    - $ref: '../parameters.yaml#/TemplateId'
+    - $ref: '../parameters.yaml#/TemplateVersionNumber'
+
+  get:
+    responses:
+      200:
+        description: Request to get a template revision succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TemplateRevisionResponseBody'
+      404:
+        description: Request to get a template revision failed because at least one parent resource could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+TemplateVersionCollectionPath:
+  parameters:
+    - $ref: '../parameters.yaml#/OrganizationId'
+    - $ref: '../parameters.yaml#/TemplateId'
+
+  get:
+    responses:
+      200:
+        description: Request to list template versions succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TemplateCollectionResponseBody'
+      404:
+        description: Request to list template versions failed because at least one parent resource could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+TemplateVersionPath:
+  parameters:
+    - $ref: '../parameters.yaml#/OrganizationId'
+    - $ref: '../parameters.yaml#/TemplateId'
+    - $ref: '../parameters.yaml#/TemplateVersionNumber'
+
+  get:
+    responses:
+      200:
+        description: Request to get a template version succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TemplateResponseBody'
+      404:
+        description: Request to get a template version failed because at least one parent resource could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'

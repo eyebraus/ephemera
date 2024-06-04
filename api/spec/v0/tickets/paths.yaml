@@ -1,0 +1,224 @@
+TicketCollectionPath:
+  parameters:
+    - $ref: '../parameters.yaml#/OrganizationId'
+
+  get:
+    responses:
+      200:
+        description: Request to list tickets succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TicketCollectionResponseBody'
+      404:
+        description: Request to list tickets because at least one parent resource could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+  post:
+    requestBody:
+      description: Request to create a new ticket.
+      content:
+        application/json:
+          schema:
+            $ref: './schemas.yaml#/CreateOrUpdateTicketRequestBody'
+      required: true
+
+    responses:
+      201:
+        description: Request to create a ticket succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TicketResponseBody'
+      400:
+        description: Request to create a ticket failed because request body was invalid.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+      404:
+        description: Request to create a ticket failed because one of its parent resources could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+TicketPath:
+  parameters:
+    - $ref: '../parameters.yaml#/OrganizationId'
+    - $ref: '../parameters.yaml#/TicketId'
+
+  delete:
+    responses:
+      204:
+        description: Request to delete a ticket succeeded.
+      404:
+        description: Request to delete a ticket failed because ticket could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+  get:
+    responses:
+      200:
+        description: Request to get a ticket succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TicketResponseBody'
+      404:
+        description: Request to get a ticket failed because ticket could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+  patch:
+    requestBody:
+      description: Request to edit an existing ticket.
+      content:
+        application/json:
+          schema:
+            $ref: './schemas.yaml#/Ticket'
+      required: true
+
+    responses:
+      200:
+        description: Request to edit a ticket succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TicketResponseBody'
+      400:
+        description: Request to edit a ticket failed because request body was invalid.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+      404:
+        description: Request to edit a ticket failed because ticket could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+  put:
+    requestBody:
+      description: Request to create a new ticket or update an existing one.
+      content:
+        application/json:
+          schema:
+            $ref: './schemas.yaml#/CreateOrUpdateTicketRequestBody'
+      required: true
+
+    responses:
+      200:
+        description: Request to update a ticket succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TicketResponseBody'
+      201:
+        description: Request to create a ticket succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TicketResponseBody'
+      400:
+        description: Request to create a ticket failed because request body was invalid.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+      404:
+        description: Request to create a ticket failed because one of its parent resources could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+TicketRevisionCollectionPath:
+  parameters:
+    - $ref: '../parameters.yaml#/OrganizationId'
+    - $ref: '../parameters.yaml#/TicketId'
+
+  get:
+    responses:
+      200:
+        description: Request to list template revisions succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TicketRevisionCollectionResponseBody'
+      404:
+        description: Request to list template revisions failed because at least one parent resource could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+TicketRevisionPath:
+  parameters:
+    - $ref: '../parameters.yaml#/OrganizationId'
+    - $ref: '../parameters.yaml#/TicketId'
+    - $ref: '../parameters.yaml#/TicketVersionNumber'
+
+  get:
+    responses:
+      200:
+        description: Request to get a template revision succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TicketRevisionResponseBody'
+      404:
+        description: Request to get a template revision failed because at least one parent resource could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+TicketVersionCollectionPath:
+  parameters:
+    - $ref: '../parameters.yaml#/OrganizationId'
+    - $ref: '../parameters.yaml#/TicketId'
+
+  get:
+    responses:
+      200:
+        description: Request to list ticket versions succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TicketCollectionResponseBody'
+      404:
+        description: Request to list ticket versions failed because at least one parent resource could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+TicketVersionPath:
+  parameters:
+    - $ref: '../parameters.yaml#/OrganizationId'
+    - $ref: '../parameters.yaml#/TicketId'
+    - $ref: '../parameters.yaml#/TicketVersionNumber'
+
+  get:
+    responses:
+      200:
+        description: Request to get a ticket version succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/TicketResponseBody'
+      404:
+        description: Request to get a ticket version failed because at least one parent resource could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'

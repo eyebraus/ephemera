@@ -36,5 +36,6 @@
         "strictNullChecks": true,
         "target": "ESNext"
     },
-    "exclude": ["node_modules", "tmp"]
+    "composite": true,
+    "exclude": ["node_modules", "tmp"],
 }

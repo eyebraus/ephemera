@@ -1,0 +1,48 @@
+openapi: 3.0.3
+
+info:
+  title: Ephemera
+  version: 0.1.0
+
+paths:
+  /orgs:
+    $ref: './organizations/paths.yaml#/OrganizationCollectionPath'
+
+  /orgs/{organizationId}:
+    $ref: './organizations/paths.yaml#/OrganizationPath'
+
+  /orgs/{organizationId}/templates:
+    $ref: './templates/paths.yaml#/TemplateCollectionPath'
+
+  /orgs/{organizationId}/templates/{templateId}:
+    $ref: './templates/paths.yaml#/TemplatePath'
+
+  /orgs/{organizationId}/templates/{templateId}/revisions:
+    $ref: './templates/paths.yaml#/TemplateRevisionCollectionPath'
+
+  /orgs/{organizationId}/templates/{templateId}/revisions/{templateVersionNumber}:
+    $ref: './templates/paths.yaml#/TemplateRevisionPath'
+
+  /orgs/{organizationId}/templates/{templateId}/versions:
+    $ref: './templates/paths.yaml#/TemplateVersionCollectionPath'
+
+  /orgs/{organizationId}/templates/{templateId}/versions/{templateVersionNumber}:
+    $ref: './templates/paths.yaml#/TemplateVersionPath'
+
+  /orgs/{organizationId}/tickets:
+    $ref: './tickets/paths.yaml#/TicketCollectionPath'
+
+  /orgs/{organizationId}/tickets/{ticketId}:
+    $ref: './tickets/paths.yaml#/TicketPath'
+
+  /orgs/{organizationId}/tickets/{ticketId}/revisions:
+    $ref: './tickets/paths.yaml#/TicketRevisionCollectionPath'
+
+  /orgs/{organizationId}/tickets/{ticketId}/revisions/{ticketVersionNumber}:
+    $ref: './tickets/paths.yaml#/TicketRevisionPath'
+
+  /orgs/{organizationId}/tickets/{ticketId}/versions:
+    $ref: './tickets/paths.yaml#/TicketVersionCollectionPath'
+
+  /orgs/{organizationId}/tickets/{ticketId}/versions/{ticketVersionNumber}:
+    $ref: './tickets/paths.yaml#/TicketVersionPath'

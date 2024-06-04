@@ -1,0 +1,36 @@
+CreateOrUpdateOrganizationRequestBody:
+  allOf:
+    - $ref: '#/Organization'
+    - type: object
+      required:
+        - description
+        - name
+
+Organization:
+  type: object
+  properties:
+    description:
+      type: string
+    name:
+      type: string
+
+OrganizationCollectionResponseBody:
+  allOf:
+    - $ref: '../schemas.yaml#/Page'
+    - type: object
+      properties:
+        values:
+          type: array
+          items:
+            $ref: '#/OrganizationResponseBody'
+      required:
+        - values
+
+OrganizationResponseBody:
+  allOf:
+    - $ref: '../schemas.yaml#/Resource'
+    - $ref: '#/Organization'
+    - type: object
+      required:
+        - description
+        - name

@@ -1,0 +1,97 @@
+OrganizationCollectionPath:
+  get:
+    responses:
+      200:
+        description: Request to list organizations succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/OrganizationCollectionResponseBody'
+
+OrganizationPath:
+  parameters:
+    - $ref: '../parameters.yaml#/OrganizationId'
+
+  delete:
+    responses:
+      204:
+        description: Request to delete an organization succeeded.
+      404:
+        description: Request to delete an organization failed because organization could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+  get:
+    responses:
+      200:
+        description: Request to get an organization succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/OrganizationResponseBody'
+      404:
+        description: Request to get an organization failed because organization could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+  patch:
+    requestBody:
+      description: Request to edit an existing organization.
+      content:
+        application/json:
+          schema:
+            $ref: './schemas.yaml#/Organization'
+      required: true
+
+    responses:
+      200:
+        description: Request to edit an organization succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/OrganizationResponseBody'
+      400:
+        description: Request to edit an organization failed because request body was invalid.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+      404:
+        description: Request to edit an organization failed because organization could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+
+  put:
+    requestBody:
+      description: Request to create a new organization or update an existing one.
+      content:
+        application/json:
+          schema:
+            $ref: './schemas.yaml#/CreateOrUpdateOrganizationRequestBody'
+      required: true
+
+    responses:
+      201:
+        description: Request to create an organization succeeded.
+        content:
+          application/json:
+            schema:
+              $ref: './schemas.yaml#/OrganizationResponseBody'
+      400:
+        description: Request to create an organization failed because request body was invalid.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'
+      404:
+        description: Request to create an organization failed because one of its parent resources could not be found.
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/ErrorBody'

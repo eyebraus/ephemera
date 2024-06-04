@@ -1,0 +1,34 @@
+OrganizationId:
+  name: organizationId
+  in: path
+  required: true
+  schema:
+    type: string
+
+TemplateId:
+  name: templateId
+  in: path
+  required: true
+  schema:
+    type: string
+
+TemplateVersionNumber:
+  name: templateVersionNumber
+  in: path
+  required: true
+  schema:
+    type: integer
+
+TicketId:
+  name: ticketId
+  in: path
+  required: true
+  schema:
+    type: string
+
+TicketVersionNumber:
+  name: ticketVersionNumber
+  in: path
+  required: true
+  schema:
+    type: integer

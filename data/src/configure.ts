@@ -1,17 +1,26 @@
 import {
+    OrganizationDoc,
+    OrganizationId,
+    TemplateDoc,
+    TemplateFieldDoc,
     TemplateFieldId,
-    TemplateFieldModel,
     TemplateId,
-    TemplateModel,
-    TemplateVersionId,
-    TemplateVersionModel,
+    TicketDoc,
+    TicketId,
+    TicketValueDoc,
+    TicketValueId,
 } from '@ephemera/model';
 import { Factory, Lifetime, Profile } from '@ephemera/provide';
 import { createClient } from 'redis';
 import { RedisRepository, RedisRepositoryBuilder, redisRepositoryBuilder } from './access/redis-repository';
-import { templateRepository } from './object-model/template';
-import { templateFieldRepository } from './object-model/template-field';
-import { templateVersionRepository } from './object-model/template-version';
+import { OrganizationEntityRepository, organizationEntityRepository } from './entities/organization';
+import { TemplateEntityRepository, templateEntityRepository } from './entities/template';
+import { TicketEntityRepository, ticketEntityRepository } from './entities/ticket';
+import { organizationDocRepository } from './redis/organization';
+import { templateDocRepository } from './redis/template';
+import { templateFieldDocRepository } from './redis/template-field';
+import { ticketDocRepository } from './redis/ticket';
+import { ticketValueDocRepository } from './redis/ticket-value';
 
 const redisClient: Factory<DataProfile, ReturnType<typeof createClient>> = (_, getSetting) => {
     const url = getSetting('redis/url').asRequiredValue();
@@ -20,17 +29,27 @@ const redisClient: Factory<DataProfile, ReturnType<typeof createClient>> = (_, g
 };
 
 export interface DataProfile {
+    organizationDocRepository: RedisRepository<OrganizationDoc, OrganizationId>;
+    organizationEntityRepository: OrganizationEntityRepository;
     redisClient: ReturnType<typeof createClient>;
     redisRepositoryBuilder: RedisRepositoryBuilder;
-    templateFieldRepository: RedisRepository<TemplateFieldModel, TemplateFieldId>;
-    templateRepository: RedisRepository<TemplateModel, TemplateId>;
-    templateVersionRepository: RedisRepository<TemplateVersionModel, TemplateVersionId>;
+    templateDocRepository: RedisRepository<TemplateDoc, TemplateId>;
+    templateEntityRepository: TemplateEntityRepository;
+    templateFieldDocRepository: RedisRepository<TemplateFieldDoc, TemplateFieldId>;
+    ticketDocRepository: RedisRepository<TicketDoc, TicketId>;
+    ticketEntityRepository: TicketEntityRepository;
+    ticketValueDocRepository: RedisRepository<TicketValueDoc, TicketValueId>;
 }
 
 export const dataProfile: Profile<DataProfile> = {
+    organizationDocRepository: [Lifetime.Static, organizationDocRepository],
+    organizationEntityRepository,
     redisClient: [Lifetime.Static, redisClient],
     redisRepositoryBuilder,
-    templateFieldRepository,
-    templateRepository,
-    templateVersionRepository,
+    templateDocRepository: [Lifetime.Static, templateDocRepository],
+    templateEntityRepository,
+    templateFieldDocRepository: [Lifetime.Static, templateFieldDocRepository],
+    ticketDocRepository: [Lifetime.Static, ticketDocRepository],
+    ticketEntityRepository,
+    ticketValueDocRepository: [Lifetime.Static, ticketValueDocRepository],
 };

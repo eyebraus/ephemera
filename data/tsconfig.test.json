@@ -4,6 +4,7 @@
         "module": "commonjs",
         "types": ["jest", "node"]
     },
+    "composite": true,
     "extends": "./tsconfig.json",
     "include": [
         "jest.config.ts",

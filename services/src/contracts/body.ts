@@ -12,7 +12,7 @@ export type PagedResponseBody<TValue, TErrorCode extends string> =
     | {
           count: number;
           start: number;
-          value: TValue[];
+          values: TValue[];
       }
     | ErrorBody<TErrorCode>;
 

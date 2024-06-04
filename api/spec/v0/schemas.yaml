@@ -1,0 +1,72 @@
+DataKind:
+  type: string
+  enum:
+    - boolean
+    - date
+    - datetime
+    - number
+    - string
+    - text
+    - time
+
+Delta:
+  type: object
+  properties:
+    next:
+      type: string
+    path:
+      type: string
+    previous:
+      type: string
+  required:
+    - next
+    - path
+    - previous
+
+ErrorBody:
+  type: object
+  properties:
+    code:
+      type: string
+    inner:
+      type: object
+    message:
+      type: string
+  required:
+    - code
+    - message
+
+Page:
+  type: object
+  properties:
+    count:
+      type: integer
+      minimum: 0
+    start:
+      type: integer
+      minimum: 0
+  required:
+    - count
+    - start
+
+Resource:
+  type: object
+  properties:
+    id:
+      type: string
+    url:
+      type: string
+  required:
+    - id
+    - url
+
+VersionedResource:
+  allOf:
+    - $ref: '#/Resource'
+    - type: object
+      properties:
+        version:
+          type: integer
+          minimum: 0
+      required:
+        - version
