@@ -1,0 +1,85 @@
+CreateOrUpdateTemplateRequestBody:
+  allOf:
+    - $ref: '#/Template'
+    - type: object
+      required:
+        - description
+        - fields
+        - name
+
+Template:
+  type: object
+  properties:
+    description:
+      type: string
+    fields:
+      type: array
+      items:
+        $ref: '#/TemplateField'
+    name:
+      type: string
+
+TemplateCollectionResponseBody:
+  allOf:
+    - $ref: '../schemas.yaml#/Page'
+    - type: object
+      properties:
+        values:
+          type: array
+          items:
+            $ref: '#/TemplateResponseBody'
+      required:
+        - values
+
+TemplateField:
+  type: object
+  properties:
+    allowed:
+      type: array
+      items:
+        type: string
+    description:
+      type: string
+    id:
+      type: string
+    kind:
+      $ref: '../schemas.yaml#/DataKind'
+    name:
+      type: string
+    required:
+      type: boolean
+  required:
+    - description
+    - id
+    - kind
+    - name
+
+TemplateResponseBody:
+  allOf:
+    - $ref: '../schemas.yaml#/VersionedResource'
+    - $ref: '#/Template'
+    - type: object
+      required:
+        - description
+        - fields
+        - name
+
+TemplateRevisionCollectionResponseBody:
+  allOf:
+    - $ref: '../schemas.yaml#/Page'
+    - type: object
+      properties:
+        values:
+          type: array
+          items:
+            $ref: '#/TemplateRevisionResponseBody'
+
+TemplateRevisionResponseBody:
+  allOf:
+    - $ref: '../schemas.yaml#/Resource'
+    - type: object
+      properties:
+        changes:
+          type: array
+          items:
+            $ref: '../schemas.yaml#/Delta'

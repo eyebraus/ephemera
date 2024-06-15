@@ -1,12 +1,15 @@
+import { HiddenDocKeys, ImmutableVersionedDocKeys, VersionedDoc } from './doc';
 import { IdTokenSet } from './id';
+import { TemplateFieldEntity, TemplateFieldProperties } from './template-field';
 
-export type TemplateId = IdTokenSet<'template'>;
-
-export interface TemplateModel {
-    createdAt: Date;
+export type TemplateDoc = VersionedDoc & {
     description: string;
-    entityId: string;
-    id: string;
-    modifiedAt: Date;
     name: string;
-}
+};
+
+export type TemplateEntity = Omit<TemplateDoc, HiddenDocKeys> & { fields: TemplateFieldEntity[] };
+export type TemplateId = IdTokenSet<'organization' | 'template'>;
+
+export type TemplateProperties = Omit<TemplateEntity, ImmutableVersionedDocKeys | 'fields'> & {
+    fields: TemplateFieldProperties[];
+};

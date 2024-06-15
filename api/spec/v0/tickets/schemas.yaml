@@ -1,0 +1,77 @@
+CreateOrUpdateTicketRequestBody:
+  allOf:
+    - $ref: '#/Ticket'
+    - type: object
+      required:
+        - template
+        - templateVersion
+        - title
+        - values
+
+Ticket:
+  type: object
+  properties:
+    template:
+      type: string
+    templateVersion:
+      type: number
+    title:
+      type: string
+    values:
+      type: array
+      items:
+        $ref: '#/TicketValue'
+
+TicketCollectionResponseBody:
+  allOf:
+    - $ref: '../schemas.yaml#/Page'
+    - type: object
+      properties:
+        values:
+          type: array
+          items:
+            $ref: '#/TicketResponseBody'
+      required:
+        - values
+
+TicketResponseBody:
+  allOf:
+    - $ref: '../schemas.yaml#/VersionedResource'
+    - $ref: '#/Ticket'
+    - type: object
+      required:
+        - template
+        - templateVersion
+        - title
+        - values
+
+TicketRevisionCollectionResponseBody:
+  allOf:
+    - $ref: '../schemas.yaml#/Page'
+    - type: object
+      properties:
+        values:
+          type: array
+          items:
+            $ref: '#/TicketRevisionResponseBody'
+
+TicketRevisionResponseBody:
+  allOf:
+    - $ref: '../schemas.yaml#/Resource'
+    - type: object
+      properties:
+        changes:
+          type: array
+          items:
+            $ref: '../schemas.yaml#/Delta'
+
+TicketValue:
+  type: object
+  properties:
+    field:
+      type: string
+    value:
+      type: string
+  required:
+    - field
+    - value

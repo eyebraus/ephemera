@@ -37,6 +37,11 @@ export type ProfileEntry<TProfileInstance extends NonNullable<unknown>, TReturn>
     | Factory<TProfileInstance, TReturn>
     | [Lifetime, Factory<TProfileInstance, TReturn>];
 
+export type Task<TProfileInstance extends NonNullable<unknown>> = (
+    getUnit: <TKey extends keyof TProfileInstance>(key: TKey) => TProfileInstance[TKey],
+    getSetting: (key: string) => ConfigurationSetting,
+) => Promise<void>;
+
 /**
  * Initializers
  */

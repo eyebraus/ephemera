@@ -4,6 +4,7 @@
         "outDir": "../dist/out-tsc",
         "types": ["node"]
     },
+    "composite": true,
     "exclude": ["jest.config.ts", "test/**/*.ts", "test/**/*.ts"],
     "extends": "./tsconfig.json",
     "include": ["src/**/*.ts", "src/**/*.tsx"]

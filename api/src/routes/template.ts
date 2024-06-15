@@ -1,6 +1,7 @@
-import { TemplateId } from '@ephemera/model';
+import { OrganizationId, TemplateFieldKind, TemplateId } from '@ephemera/model';
 import { Factory } from '@ephemera/provide';
 import { validateRequestBody } from '@ephemera/services';
+import { isFailure } from '@ephemera/stdlib';
 import { Request, Response, Router } from 'express';
 import { ApiProfile } from '../configure';
 import {
@@ -15,212 +16,297 @@ import {
 } from '../contract/template';
 import { getCountFromQuery, getSkipFromQuery } from '../utilities/query';
 
+type DeleteTemplateRequest = Request<{ organizationId: string; templateId: string }>;
 type DeleteTemplateResponse = Response<DeleteTemplateResponseBody>;
+type GetTemplateRequest = Request<{ organizationId: string; templateId: string }>;
 type GetTemplateResponse = Response<GetTemplateResponseBody>;
+type ListTemplatesRequest = Request<{ organizationId: string }>;
 type ListTemplatesResponse = Response<ListTemplatesResponseBody>;
-type PatchTemplateRequest = Request<{ id: string }, PatchTemplateResponseBody, PatchTemplateRequestBody>;
+
+type PatchTemplateRequest = Request<
+    { organizationId: string; templateId: string },
+    PatchTemplateResponseBody,
+    PatchTemplateRequestBody
+>;
+
 type PatchTemplateResponse = Response<PatchTemplateResponseBody>;
-type PutTemplateRequest = Request<{ id: string }, PutTemplateResponseBody, PutTemplateRequestBody>;
+
+type PutTemplateRequest = Request<
+    { organizationId: string; templateId: string },
+    PutTemplateResponseBody,
+    PutTemplateRequestBody
+>;
+
 type PutTemplateResponse = Response<PutTemplateResponseBody>;
 
-const getUrlForTemplate = (hostname: string, id: TemplateId) => {
-    const { template } = id;
+const createTemplateRequestValidator = (validateRequired: boolean) =>
+    validateRequestBody<TemplateErrorCode>((builder) => {
+        builder.addField('description', (field) => {
+            if (validateRequired) {
+                field.isRequired({
+                    code: TemplateErrorCode.MissingDescription,
+                    message: 'Property "description" must be given.',
+                });
+            }
 
-    return `https://${hostname}/template/${template.toLowerCase()}`;
-};
-
-const validatePatchRequestBody = validateRequestBody<TemplateErrorCode>((builder) => {
-    builder.addField('description', (field) => {
-        field.shouldNotBeBlank({
-            code: TemplateErrorCode.InvalidDescription,
-            message: 'Description cannot be empty.',
-        });
-    });
-
-    builder.addField('name', (field) => {
-        field.shouldNotBeBlank({
-            code: TemplateErrorCode.InvalidName,
-            message: 'Name cannot be empty.',
-        });
-    });
-});
-
-const validatePutRequestBody = validateRequestBody<TemplateErrorCode>((builder) => {
-    builder.addField('description', (field) => {
-        field
-            .isRequired({
-                code: TemplateErrorCode.MissingDescription,
-                message: 'Property "description" must be given.',
-            })
-            .shouldNotBeBlank({
+            field.shouldNotBeBlank({
                 code: TemplateErrorCode.InvalidDescription,
                 message: 'Property "description" cannot be empty.',
             });
-    });
+        });
 
-    builder.addField('name', (field) => {
-        field
-            .isRequired({
-                code: TemplateErrorCode.MissingName,
-                message: 'Property "name" must be given.',
-            })
-            .shouldNotBeBlank({
+        builder.addField('fields', (field) => {
+            if (validateRequired) {
+                field.isRequired({
+                    code: TemplateErrorCode.MissingFields,
+                    message: 'Property "fields" must be given.',
+                });
+            }
+
+            field.everyItemShouldPass((member) => {
+                member.addField('allowed', (field) => {
+                    field
+                        .shouldBeArray({
+                            code: TemplateErrorCode.InvalidFieldAllowed,
+                            message: 'Property "allowed" must be an array.',
+                        })
+                        .shouldBeLongerThan(0, {
+                            code: TemplateErrorCode.InvalidFieldAllowed,
+                            message: 'Property "allowed" cannot be empty.',
+                        });
+                });
+
+                member.addField('description', (field) => {
+                    field
+                        .isRequired({
+                            code: TemplateErrorCode.MissingFieldDescription,
+                            message: 'Property "description" must be given.',
+                        })
+                        .shouldNotBeBlank({
+                            code: TemplateErrorCode.InvalidFieldDescription,
+                            message: 'Property "description" cannot be empty.',
+                        });
+                });
+
+                member.addField('id', (field) => {
+                    field
+                        .isRequired({
+                            code: TemplateErrorCode.MissingFieldId,
+                            message: 'Property "id" must be given.',
+                        })
+                        .shouldMatch(/^[A-Za-z0-9][A-Za-z0-9\._-]*$/, {
+                            code: TemplateErrorCode.InvalidFieldId,
+                            message:
+                                'Property "id" is not of a valid format. Value should only include alphanums, .s, _s, and -s.',
+                        });
+                });
+
+                member.addField('kind', (field) => {
+                    field
+                        .isRequired({
+                            code: TemplateErrorCode.MissingFieldKind,
+                            message: 'Property "kind" must be given.',
+                        })
+                        .shouldBeIn(Object.values(TemplateFieldKind), {
+                            code: TemplateErrorCode.InvalidFieldKind,
+                            message: 'Property "kind" is not one of the expected values.',
+                        });
+                });
+
+                member.addField('name', (field) => {
+                    field
+                        .isRequired({
+                            code: TemplateErrorCode.MissingFieldName,
+                            message: 'Property "name" must be given.',
+                        })
+                        .shouldNotBeBlank({
+                            code: TemplateErrorCode.InvalidFieldName,
+                            message: 'Property "name" cannot be empty.',
+                        });
+                });
+
+                member.addField('required', (field) => {
+                    field.shouldBeBoolean({
+                        code: TemplateErrorCode.InvalidFieldRequired,
+                        message: 'Property "required" must be boolean.',
+                    });
+                });
+            });
+        });
+
+        builder.addField('name', (field) => {
+            if (validateRequired) {
+                field.isRequired({
+                    code: TemplateErrorCode.MissingName,
+                    message: 'Property "name" must be given.',
+                });
+            }
+
+            field.shouldNotBeBlank({
                 code: TemplateErrorCode.InvalidName,
                 message: 'Property "name" cannot be empty.',
             });
+        });
     });
-});
+
+const getStatusCodeForErrorCode = (code: string) => {
+    switch (code) {
+        case TemplateErrorCode.InvalidDescription:
+        case TemplateErrorCode.InvalidFieldAllowed:
+        case TemplateErrorCode.InvalidFieldDescription:
+        case TemplateErrorCode.InvalidFieldId:
+        case TemplateErrorCode.InvalidFieldKind:
+        case TemplateErrorCode.InvalidFieldName:
+        case TemplateErrorCode.InvalidFieldRequired:
+        case TemplateErrorCode.InvalidName:
+        case TemplateErrorCode.InvalidRequest:
+        case TemplateErrorCode.MissingDescription:
+        case TemplateErrorCode.MissingFieldAllowed:
+        case TemplateErrorCode.MissingFieldDescription:
+        case TemplateErrorCode.MissingFieldId:
+        case TemplateErrorCode.MissingFieldKind:
+        case TemplateErrorCode.MissingFieldName:
+        case TemplateErrorCode.MissingFieldRequired:
+        case TemplateErrorCode.MissingFields:
+        case TemplateErrorCode.MissingName:
+            return 400;
+
+        case TemplateErrorCode.NotFound:
+            return 404;
+
+        default:
+            return 500;
+    }
+};
+
+const getUrlForTemplate = (hostname: string, id: TemplateId) => {
+    const { organization, template } = id;
+
+    return `https://${hostname}/orgs/${organization.toLowerCase()}/templates/${template.toLowerCase()}`;
+};
+
+const validatePatchRequestBody = createTemplateRequestValidator(false);
+const validatePutRequestBody = createTemplateRequestValidator(true);
 
 export const templateRouter: Factory<ApiProfile, Router> = (getUnit) => {
-    const fieldRepository = getUnit('templateFieldRepository');
-    const templateRepository = getUnit('templateRepository');
-    const versionRepository = getUnit('templateVersionRepository');
+    const templateEntityRepository = getUnit('templateEntityRepository');
     const router = Router({ mergeParams: true });
 
-    const getIdsOfChildTemplateFields = async (id: TemplateId) => {
-        const entityId = templateRepository.getEntityId(id);
-
-        return await fieldRepository.search().where('entityId').equals(`${entityId}/*`).allIds();
-    };
-
-    const getIdsOfChildTemplateVersions = async (id: TemplateId) => {
-        const entityId = templateRepository.getEntityId(id);
-
-        return await versionRepository.search().where('entityId').equals(`${entityId}/*`).allIds();
-    };
-
-    router.delete('/:id', async (request, response: DeleteTemplateResponse) => {
+    router.delete('/:templateId', async (request: DeleteTemplateRequest, response: DeleteTemplateResponse) => {
         const { params } = request;
-        const { id: template } = params;
-        const id: TemplateId = { template };
+        const { organizationId, templateId } = params;
+        const id: TemplateId = { organization: organizationId, template: templateId };
 
-        // Check for the existence of the template. If it doesn't exist, 404
-        const doesTemplateExist = await templateRepository.has(id);
+        const result = await templateEntityRepository.remove(id);
 
-        if (!doesTemplateExist) {
-            response.status(404).send({
-                code: TemplateErrorCode.NotFound,
-                message: 'Template not found.',
-            });
+        if (isFailure(result)) {
+            const { content } = result;
+            const { code } = content;
+            response.status(getStatusCodeForErrorCode(code)).send(content);
 
             return;
         }
-
-        // Get IDs of all descended template versions and fields
-        const [fieldIds, versionIds] = await Promise.all([
-            getIdsOfChildTemplateFields(id),
-            getIdsOfChildTemplateVersions(id),
-        ]);
-
-        // Delete template and all related documents
-        await Promise.all([
-            templateRepository.remove(id),
-            ...versionIds.map((id) => versionRepository.remove(id)),
-            ...fieldIds.map((id) => fieldRepository.remove(id)),
-        ]);
 
         response.status(204);
     });
 
-    router.get('/', async (request, response: ListTemplatesResponse) => {
-        const { hostname } = request;
+    router.get('/', async (request: ListTemplatesRequest, response: ListTemplatesResponse) => {
+        const { hostname, params } = request;
+        const { organizationId } = params;
         const count = getCountFromQuery(request);
         const skip = getSkipFromQuery(request);
-        const templates = await templateRepository.search().page(skip, count);
+        const id: OrganizationId = { organization: organizationId };
 
-        response.status(200).send({
-            count: templates.length,
-            start: skip,
-            value: templates.map((template) => ({
-                description: template.description,
-                id: template.id,
-                name: template.name,
-                url: getUrlForTemplate(hostname, { template: template.id }),
-            })),
-        });
-    });
+        const result = await templateEntityRepository.listBy(id, skip, count);
 
-    router.get('/:id', async (request, response: GetTemplateResponse) => {
-        const { hostname, params } = request;
-        const { id } = params;
-        const template = await templateRepository.fetch({ template: id });
-
-        if (!template) {
-            response.status(404).send({
-                code: TemplateErrorCode.NotFound,
-                message: 'Template not found.',
-            });
+        if (isFailure(result)) {
+            const { content } = result;
+            const { code } = content;
+            response.status(getStatusCodeForErrorCode(code)).send(content);
 
             return;
         }
 
+        const { content } = result;
+
         response.status(200).send({
-            description: template.description,
-            id: template.id,
-            name: template.name,
-            url: getUrlForTemplate(hostname, { template: id }),
+            count: content.length,
+            start: skip,
+            values: content.map((template) => ({
+                ...template,
+                url: getUrlForTemplate(hostname, { ...id, template: template.id }),
+            })),
         });
     });
 
+    router.get('/:templateId', async (request: GetTemplateRequest, response: GetTemplateResponse) => {
+        const { hostname, params } = request;
+        const { organizationId, templateId } = params;
+        const parentId: OrganizationId = { organization: organizationId };
+        const id: TemplateId = { ...parentId, template: templateId };
+
+        const result = await templateEntityRepository.get(id);
+
+        if (isFailure(result)) {
+            const { content } = result;
+            const { code } = content;
+            response.status(getStatusCodeForErrorCode(code)).send(content);
+
+            return;
+        }
+
+        const { content } = result;
+        const url = getUrlForTemplate(hostname, id);
+        response.status(200).send({ ...content, url });
+    });
+
     router.patch(
-        '/:id',
+        '/:templateId',
         validatePatchRequestBody,
         async (request: PatchTemplateRequest, response: PatchTemplateResponse) => {
             const { body, hostname, params } = request;
-            const { id } = params;
+            const { organizationId, templateId } = params;
+            const id: TemplateId = { organization: organizationId, template: templateId };
 
-            const existingTemplate = await templateRepository.fetch({ template: id });
+            const result = await templateEntityRepository.update(id, body);
 
-            if (!existingTemplate) {
-                response.status(404).send({
-                    code: TemplateErrorCode.NotFound,
-                    message: 'Template not found.',
-                });
+            if (isFailure(result)) {
+                const { content } = result;
+                const { code } = content;
+                response.status(getStatusCodeForErrorCode(code)).send(content);
 
                 return;
             }
 
-            const template = await templateRepository.save(
-                { template: id },
-                {
-                    ...existingTemplate,
-                    ...body,
-                    modifiedAt: new Date(),
-                },
-            );
-
-            response.status(200).send({
-                description: template.description,
-                id: template.id,
-                name: template.name,
-                url: getUrlForTemplate(hostname, { template: id }),
-            });
+            const { content } = result;
+            const url = getUrlForTemplate(hostname, id);
+            response.status(200).send({ ...content, url });
         },
     );
 
-    router.put('/:id', validatePutRequestBody, async (request: PutTemplateRequest, response: PutTemplateResponse) => {
-        const { body, hostname, params } = request;
-        const { id } = params;
+    router.put(
+        '/:templateId',
+        validatePutRequestBody,
+        async (request: PutTemplateRequest, response: PutTemplateResponse) => {
+            const { body, hostname, params } = request;
+            const { organizationId, templateId } = params;
+            const id: TemplateId = { organization: organizationId, template: templateId };
 
-        const timestamp = new Date();
+            const result = await templateEntityRepository.set(id, body);
 
-        const template = await templateRepository.save(
-            { template: id },
-            {
-                ...body,
-                createdAt: timestamp,
-                id,
-                modifiedAt: timestamp,
-            },
-        );
+            if (isFailure(result)) {
+                const { content } = result;
+                const { code } = content;
+                response.status(getStatusCodeForErrorCode(code)).send(content);
 
-        response.status(201).send({
-            description: template.description,
-            id: template.id,
-            name: template.name,
-            url: getUrlForTemplate(hostname, { template: id }),
-        });
-    });
+                return;
+            }
+
+            const { content } = result;
+            const url = getUrlForTemplate(hostname, id);
+            response.status(content.version === 1 ? 201 : 200).send({ ...content, url });
+        },
+    );
 
     return router;
 };

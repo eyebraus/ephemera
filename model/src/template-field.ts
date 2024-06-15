@@ -1,11 +1,23 @@
 import { LowercasedUnion } from '@ephemera/stdlib';
+import { Doc, HiddenDocKeys, ImmutableDocKeys } from './doc';
 import { IdTokenSet } from './id';
 
 /**
  * Types
  */
 
-export type TemplateFieldId = IdTokenSet<'field' | 'template' | 'versionNumber'>;
+export type TemplateFieldDoc = Doc & {
+    allowed?: string[];
+    description: string;
+    id: string;
+    kind: TemplateFieldKind;
+    name: string;
+    required: boolean;
+};
+
+export type TemplateFieldEntity = Omit<TemplateFieldDoc, HiddenDocKeys>;
+
+export type TemplateFieldId = IdTokenSet<'field' | 'organization' | 'template'>;
 
 type TemplateFieldKindKey = 'Boolean' | 'Date' | 'DateTime' | 'Number' | 'String' | 'Text' | 'Time';
 
@@ -21,15 +33,7 @@ export const TemplateFieldKind: LowercasedUnion<TemplateFieldKindKey> = {
     Time: 'time',
 };
 
-export interface TemplateFieldModel {
-    allowed?: string[];
-    description: string;
-    entityId: string;
-    id: string;
-    kind: TemplateFieldKind;
-    name: string;
-    required: boolean;
-}
+export type TemplateFieldProperties = Omit<TemplateFieldEntity, ImmutableDocKeys> & { id: string };
 
 /**
  * Type guards
