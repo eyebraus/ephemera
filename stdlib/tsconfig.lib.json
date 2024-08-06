@@ -1,19 +1,10 @@
 {
     "compilerOptions": {
-        "declaration": true,
+        "composite": true,
         "outDir": "../dist/out-tsc",
-        "types": [
-            "next",
-            "node",
-            "@nx/next/typings/image.d.ts",
-            "@nx/react/typings/cssmodule.d.ts",
-            "@nx/react/typings/image.d.ts"
-        ]
+        "types": ["node"]
     },
-    "exclude": [
-        "test/**/*.ts",
-        "test/**/*.tsx"
-    ],
+    "exclude": ["jest.config.ts", "test/**/*.ts"],
     "extends": "./tsconfig.json",
-    "include": ["src/**/*.ts", "src/**/*.tsx"]
+    "include": ["src/**/*.ts"]
 }
