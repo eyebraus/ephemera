@@ -1,10 +1,10 @@
 {
     "compilerOptions": {
-        "declaration": true,
+        "composite": true,
         "outDir": "../dist/out-tsc",
         "types": ["node"]
     },
-    "exclude": ["jest.config.ts", "test/**/*.ts", "test/**/*.ts"],
+    "exclude": ["jest.config.ts", "test/**/*.ts"],
     "extends": "./tsconfig.json",
-    "include": ["src/**/*.ts", "src/**/*.tsx"]
+    "include": ["src/**/*.ts"]
 }

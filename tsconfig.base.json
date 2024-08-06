@@ -4,7 +4,8 @@
         "allowJs": false,
         "allowSyntheticDefaultImports": true,
         "baseUrl": ".",
-        "declaration": false,
+        "declaration": true,
+        "declarationMap": true,
         "emitDecoratorMetadata": true,
         "esModuleInterop": true,
         "experimentalDecorators": true,
@@ -36,6 +37,5 @@
         "strictNullChecks": true,
         "target": "ESNext"
     },
-    "composite": true,
     "exclude": ["node_modules", "tmp"],
 }
