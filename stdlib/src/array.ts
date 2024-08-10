@@ -53,9 +53,9 @@ export const groupInto = <TValue extends Defined>(
 ): Dict<TValue[]> => Dict(group(array, groupBy));
 
 /**
- * Gets the last item in the array if the array is non-empty.
+ * Gets the first item in the array if the array is non-empty.
  * @param array An array of defined items.
- * @returns A {@link Maybe} containing the last item in the array if the array is non-empty.
+ * @returns A {@link Maybe} containing the first item in the array if the array is non-empty.
  */
 export const head = <TItem extends Defined>(array: TItem[]): Maybe<TItem> => wrap(isNone(array) ? undefined : array[0]);
 
