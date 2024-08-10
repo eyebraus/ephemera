@@ -1,4 +1,4 @@
-import { Dict, Fault, Result } from '@ephemera/stdlib';
+import { Defined, Dict, Fault, Result } from '@ephemera/stdlib';
 import { ErrorCode } from '../../constants/error';
 import { FieldBuilder } from './field-builder';
 import { ValidationOptions, mergeOptions } from './options';
@@ -6,7 +6,7 @@ import { validateFieldBuilder } from './validate';
 
 export class ItemBuilder<TCode extends string | ErrorCode> {
     options?: ValidationOptions<TCode>;
-    predicates: ((value: Dict) => Result<void, Fault<TCode>>)[];
+    predicates: ((value: Dict<Defined>) => Result<void, Fault<TCode>>)[];
 
     constructor(options?: ValidationOptions<TCode>) {
         this.options = options;
