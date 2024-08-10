@@ -22,7 +22,7 @@ export interface Fault<TCode extends string = string> {
 
 /**
  * Checks whether a value is a {@link Fault}.
- * @param value value
+ * @param value Value.
  * @returns True if value can be assigned to {@link Fault}; false otherwise
  */
 export const isFault = (value: unknown): value is Fault => {

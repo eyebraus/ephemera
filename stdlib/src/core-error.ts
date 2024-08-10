@@ -36,9 +36,9 @@ export class CoreError<TCode extends string = string> extends Error implements F
 
     /**
      * Constructs a {@link CoreError}.
-     * @param code Error code
-     * @param message Description of the error
-     * @param inner Failure which caused this error to occur
+     * @param code Error code.
+     * @param message Description of the error.
+     * @param inner Failure which caused this error to occur.
      */
     constructor(code: TCode, message: string, inner?: Fault);
 
@@ -51,7 +51,7 @@ export class CoreError<TCode extends string = string> extends Error implements F
 
     /**
      * Serializes the {@link CoreError} into an object.
-     * @returns Object representation of the error
+     * @returns Object representation of the error.
      */
     toObject(): CoreErrorProperties<TCode> {
         return {
@@ -81,15 +81,15 @@ export interface ErrorProperties {
 
 /**
  * Checks whether a value is a {@link CoreError}.
- * @param value value
- * @returns True if value is an instance of {@link CoreError}; false otherwise
+ * @param value Value.
+ * @returns True if value is an instance of {@link CoreError}; false otherwise.
  */
 export const isCoreError = (value: unknown): value is CoreError => value instanceof CoreError;
 
 /**
  * Checks whether a value is a {@link CoreErrorProperties}.
- * @param value value
- * @returns True if value can be assigned to {@link CoreErrorProperties}; false otherwise
+ * @param value Value.
+ * @returns True if value can be assigned to {@link CoreErrorProperties}; false otherwise.
  */
 export const isCoreErrorProperties = (value: unknown): value is CoreErrorProperties => {
     if (!isErrorProperties(value)) {
@@ -103,8 +103,8 @@ export const isCoreErrorProperties = (value: unknown): value is CoreErrorPropert
 
 /**
  * Checks whether a value is an {@link ErrorProperties}.
- * @param value value
- * @returns True if value can be assigned to {@link ErrorProperties}; false otherwise
+ * @param value Value.
+ * @returns True if value can be assigned to {@link ErrorProperties}; false otherwise.
  */
 export const isErrorProperties = (value: unknown): value is ErrorProperties => {
     const { message, stack } = value as ErrorProperties;

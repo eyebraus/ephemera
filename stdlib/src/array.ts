@@ -1,23 +1,35 @@
-import { Map } from './map';
+import { Defined } from './defined';
+import { Dict } from './dict';
+import { Maybe, wrap } from './maybe';
+import { isNone } from './none-one-or-many';
 import { Pair, first, second } from './pair';
 
 /**
- * Functions
+ * Gets the last item in the array if the array is non-empty.
+ * @param array An array of defined items.
+ * @returns A {@link Maybe} containing the last item in the array if the array is non-empty.
  */
+export const end = <TItem extends Defined>(array: TItem[]): Maybe<TItem> =>
+    wrap(isNone(array) ? undefined : array[array.length - 1]);
 
-export const compact = <TItem>(value: (TItem | undefined)[]): TItem[] =>
-    value.filter((item) => item !== undefined) as TItem[];
+/**
+ * Gets an array of all but the last item in an array.
+ * @param array An array of defined items.
+ * @returns A new array containing all items except the last one.
+ */
+export const front = <TItem extends Defined>(array: TItem[]): TItem[] => array.slice(0, -1);
 
-export const end = <TItem>(value: TItem[]): TItem | undefined =>
-    value.length > 0 ? value[value.length - 1] : undefined;
-
-export const front = <TItem>(value: TItem[]): TItem[] => (value.length > 0 ? value.slice(0, -1) : []);
-
-export const group = <TKey, TValue>(
-    items: TValue[],
+/**
+ * Creates an array of key-array {@link Pair}s from an array using a key selector function.
+ * @param array An array of defined items.
+ * @param groupBy A function that gets the key that the given value should be grouped with.
+ * @returns An array of key-array {@link Pair}s where values that have the same key belong to the same pair.
+ */
+export const group = <TKey extends Defined, TValue extends Defined>(
+    array: TValue[],
     groupBy: (value: TValue, index: number) => TKey,
 ): Pair<TKey, TValue[]>[] => {
-    const pairs = items.map((value, index) => Pair(groupBy(value, index), value));
+    const pairs = array.map((value, index) => Pair(groupBy(value, index), value));
     const groupKeys = unique(pairs.map(first));
     const groups: Pair<TKey, TValue[]>[] = [];
 
@@ -29,13 +41,41 @@ export const group = <TKey, TValue>(
     return groups;
 };
 
-export const groupInto = <TValue>(value: TValue[], groupBy: (value: TValue, index: number) => string): Map<TValue[]> =>
-    Map(group(value, groupBy));
+/**
+ * Creates a {@link Dict} of arrays from an array using a key selector function.
+ * @param array An array of defined items.
+ * @param groupBy A function that gets the key that the given value should be grouped with.
+ * @returns A {@link Dict} of arrays where values that have the same key belong to the same pair.
+ */
+export const groupInto = <TValue extends Defined>(
+    array: TValue[],
+    groupBy: (value: TValue, index: number) => string,
+): Dict<TValue[]> => Dict(group(array, groupBy));
 
-export const head = <TItem>(value: TItem[]): TItem | undefined => (value.length > 0 ? value[0] : undefined);
+/**
+ * Gets the last item in the array if the array is non-empty.
+ * @param array An array of defined items.
+ * @returns A {@link Maybe} containing the last item in the array if the array is non-empty.
+ */
+export const head = <TItem extends Defined>(array: TItem[]): Maybe<TItem> => wrap(isNone(array) ? undefined : array[0]);
 
-export const isArray = <TItem>(value: unknown): value is TItem[] => Array.isArray(value);
+/**
+ * Type guard that checks whether a value is an array.
+ * @param value An unknown value.
+ * @returns True if the value is an array, false otherwise.
+ */
+export const isArray = <TItem extends Defined>(value: unknown): value is TItem[] => Array.isArray(value);
 
-export const tail = <TItem>(value: TItem[]): TItem[] => (value.length > 0 ? value.slice(1) : []);
+/**
+ * Gets an array of all but the first item in an array.
+ * @param array An array of defined items.
+ * @returns A new array containing all items except the first one.
+ */
+export const tail = <TItem extends Defined>(value: TItem[]): TItem[] => value.slice(1);
 
-export const unique = <TItem>(value: TItem[]): TItem[] => [...new Set(value)];
+/**
+ * Gets an array that contains all unique values from a given array.
+ * @param value An array of defined items.
+ * @returns A new array containing all unique values from the given array.
+ */
+export const unique = <TItem extends Defined>(value: TItem[]): TItem[] => [...new Set(value)];
