@@ -46,8 +46,8 @@ export const Something = <TValue extends Defined>(value: TValue): Something<TVal
  * @param maybes An array of {@link Maybe}s.
  * @returns A {@link Something} that contains an array of values from {@link Something}s in the given array.
  */
-export const compact = <TValue extends Defined>(maybes: Maybe<TValue>[]): Something<TValue[]> =>
-    Something(unwrapMany(...maybes.filter(isSomething)));
+export const compact = <TValue extends Defined>(maybes: Maybe<TValue>[]): Something<TValue>[] =>
+    maybes.filter(isSomething);
 
 /**
  * Gets the number of {@link Something}s in an array of {@link Maybe}s.
@@ -62,7 +62,7 @@ export const density = <TValue extends Defined>(maybes: Maybe<TValue>[]): number
  * @returns True if all {@link Maybe}s are {@link Something}, false otherwise.
  */
 export const isFull = <TValue extends Defined>(maybes: Maybe<TValue>[]): maybes is Something<TValue>[] =>
-    maybes.every(isSomething);
+    maybes.length > 0 && maybes.every(isSomething);
 
 /**
  * Type guard which detects whether a given {@link Maybe} is {@link Nothing}.
@@ -84,7 +84,7 @@ export const isSomething = <TValue extends Defined>(maybe: Maybe<TValue>): maybe
  * @returns True if all {@link Maybe}s are {@link Nothing}, false otherwise.
  */
 export const isVacant = <TValue extends Defined>(maybes: Maybe<TValue>[]): maybes is Nothing[] =>
-    maybes.every(isNothing);
+    maybes.length <= 0 || maybes.every(isNothing);
 
 /**
  * Gets the number of {@link Nothing}s in an array of {@link Maybe}s.
