@@ -1,5 +1,5 @@
 import {
-    Dict,
+    Defined,
     FailureWithContent,
     Fault,
     Result,
@@ -44,7 +44,7 @@ export class FieldBuilder<TCode extends string | ErrorCode> {
                 return FailureWithContent(getFault(mergedOptions));
             }
 
-            const results = value.map((item) => validateItemBuilder(itemBuilder, item as Dict));
+            const results = value.map((item) => validateItemBuilder(itemBuilder, item as Defined));
 
             return results.find(isFailure) ?? SuccessWithoutContent();
         });
@@ -230,7 +230,7 @@ export class FieldBuilder<TCode extends string | ErrorCode> {
                 return FailureWithContent(getFault(mergedOptions));
             }
 
-            const results = value.map((item) => validateItemBuilder(itemBuilder, item as Dict));
+            const results = value.map((item) => validateItemBuilder(itemBuilder, item as Defined));
 
             return results.find(isSuccess) ?? FailureWithContent(getFault(mergedOptions));
         });

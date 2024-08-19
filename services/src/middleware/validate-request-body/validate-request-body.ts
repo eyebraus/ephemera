@@ -1,4 +1,4 @@
-import { Dict, isFailure } from '@ephemera/stdlib';
+import { Defined, Dict, isFailure } from '@ephemera/stdlib';
 import { RequestHandler } from 'express';
 import { ErrorCode } from '../../constants/error';
 import { ErrorBody } from '../../contracts/body';
@@ -10,7 +10,7 @@ export const validateRequestBody =
     <TCode extends string | ErrorCode>(
         configure: (builder: ItemBuilder<TCode>) => void,
         options?: ValidationOptions<TCode>,
-    ): RequestHandler<never, ErrorBody<TCode>, Dict, never, never> =>
+    ): RequestHandler<never, ErrorBody<TCode>, Dict<Defined>, never, never> =>
     (request, response, next) => {
         const { body } = request;
 

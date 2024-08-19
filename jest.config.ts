@@ -1,5 +1,6 @@
 import { getJestProjects } from '@nx/jest';
 
 export default {
-  projects: getJestProjects(),
+    codeCoverage: true,
+    projects: getJestProjects(),
 };

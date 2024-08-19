@@ -1,3 +1,6 @@
+import { Defined } from './defined';
+import { Maybe, Nothing, Something } from './maybe';
+
 /**
  * Wraps a function that may throw an error. If it throws, the error is swallowed and a given default value is returned
  * instead.
@@ -15,6 +18,24 @@ export const tryOrDefault =
             return fn(...params);
         } catch {
             return defaultValue;
+        }
+    };
+
+/**
+ * Wraps a function that may throw an error. If it throws, the error is swallowed and {@link Nothing} is returned
+ * instead.
+ * @param fn Function to wrap
+ * @returns Wrapped function that will return {@link Nothing} if original function threw
+ */
+export const tryOrNothing =
+    <TReturn extends Defined, TFn extends (...params: Parameters<TFn>) => TReturn>(
+        fn: TFn,
+    ): ((...params: Parameters<TFn>) => Maybe<TReturn>) =>
+    (...params: Parameters<TFn>) => {
+        try {
+            return Something(fn(...params));
+        } catch {
+            return Nothing();
         }
     };
 

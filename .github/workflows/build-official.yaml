@@ -1,0 +1,15 @@
+name: build-official
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build API Docker image
+        run: docker build . --file api.dockerfile --tag ephemera.api:$(date +%s)
+
+on:
+  push:
+    branches:
+      - main
