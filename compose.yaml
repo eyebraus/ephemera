@@ -3,9 +3,11 @@ name: ephemera
 services:
   api:
     build:
+      args:
+        continueOnTestFailure: true
       context: .
       dockerfile: api.dockerfile
-      target: local
+      target: build-local
 
     command: --inspect=0.0.0.0:9229 main.js
     container_name: ephemera.api

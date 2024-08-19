@@ -32,6 +32,17 @@
         "prettier.tabWidth": 2,
     },
 
+    // GitHub Actions Workflow settings
+    "[github-actions-workflow]": {
+        "diffEditor.ignoreTrimWhitespace": false,
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "prettier.tabWidth": 2,
+    },
+
     // JavaScript settings
     "javascript.preferences.importModuleSpecifier": "relative",
 

@@ -1,35 +1,68 @@
-FROM docker.io/node:lts-alpine as preamble
-    ARG port=3333
+# ================
+# preamble
+# ================
+FROM docker.io/node:lts-alpine AS preamble
+ARG continueOnLintFailure=true
+ARG continueOnTestFailure=false
+ARG port=3333
+ENV CONFIG_DIRECTORY /ephemera/dist/api
+ENV PORT ${port}
+EXPOSE ${PORT}
 
-    # Set environment variables
-    ENV CONFIG_DIRECTORY /ephemera/dist/api
-    ENV PORT ${port}
+# ================
+# install
+# ================
+FROM preamble AS install
+WORKDIR /ephemera
 
-    EXPOSE ${PORT}
+# Copy files necessary for npm install
+COPY package.json package-lock.json ./
 
-FROM preamble as install
-    WORKDIR /ephemera
+# Install dependencies (WORKDIR must be set or node cries)
+RUN npm install --include dev
 
-    # Copy files necessary for npm install
-    COPY package.json package-lock.json ./
+# Afterward, copy ALL files
+COPY . .
 
-    # Install dependencies (WORKDIR must be set or node cries)
-    RUN npm install --include dev
+# ================
+# lint
+# ================
+FROM install AS lint
+RUN <<EOF
+npx nx run-many --parallel=8 --projects=api,data,model,provide,services,stdlib -t lint
+if [ "$continueOnLintFailure" = "true" ]; then
+    exit 0
+fi
+EOF
 
-    # Afterward, copy ALL files
-    COPY . .
+# ================
+# test
+# ================
+FROM lint AS test
+RUN <<EOF
+npx nx run-many --parallel=8 --projects=api,data,model,provide,services,stdlib -t test
+if [ "$continueOnTestFailure" = "true" ]; then
+    exit 0
+fi
+EOF
 
-FROM install as development
-    # Build
-    ENV NODE_ENV development
-    RUN ["npx", "nx", "run", "api:build:development"]
+# ================
+# build-development
+# ================
+FROM test AS build-development
+ENV NODE_ENV development
+RUN npx nx run api:build:development
 
-FROM install as local
-    # Build
-    ENV NODE_ENV local
-    RUN ["npx", "nx", "run", "api:build:development"]
+# ================
+# build-local
+# ================
+FROM test AS build-local
+ENV NODE_ENV local
+RUN npx nx run api:build:development
 
-FROM install as production
-    # Build
-    ENV NODE_ENV production
-    RUN ["npx", "nx", "run", "api:build:production"]
+# ================
+# build-production
+# ================
+FROM test AS build-production
+ENV NODE_ENV production
+RUN npx nx run api:build:production
