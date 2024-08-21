@@ -1,11 +1,12 @@
-name: build-official
+name: build-api-official
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout source
+        uses: actions/checkout@v4
       - name: Build API Docker image
         run: docker build . --file api.dockerfile --tag ephemera.api:$(date +%s)
 
