@@ -2,8 +2,6 @@
 # preamble
 # ================
 FROM docker.io/node:lts-alpine AS preamble
-ARG continueOnLintFailure=true
-ARG continueOnTestFailure=false
 ARG port=3333
 ENV CONFIG_DIRECTORY /ephemera/dist/api
 ENV PORT ${port}
@@ -28,41 +26,17 @@ COPY . .
 # lint
 # ================
 FROM install AS lint
-RUN <<EOF
-npx nx run-many --parallel=8 --projects=api,data,model,provide,services,stdlib -t lint
-if [ "$continueOnLintFailure" = "true" ]; then
-    exit 0
-fi
-EOF
+RUN npx nx run-many --parallel=8 --projects=api,data,model,provide,services,stdlib -t lint; exit 0
 
 # ================
 # test
 # ================
 FROM lint AS test
-RUN <<EOF
-npx nx run-many --parallel=8 --projects=api,data,model,provide,services,stdlib -t test
-if [ "$continueOnTestFailure" = "true" ]; then
-    exit 0
-fi
-EOF
+RUN npx nx run-many --parallel=8 --projects=api,data,model,provide,services,stdlib -t test; exit 0
 
 # ================
-# build-development
+# compose
 # ================
-FROM test AS build-development
-ENV NODE_ENV development
-RUN npx nx run api:build:development
-
-# ================
-# build-local
-# ================
-FROM test AS build-local
+FROM test AS compose
 ENV NODE_ENV local
 RUN npx nx run api:build:development
-
-# ================
-# build-production
-# ================
-FROM test AS build-production
-ENV NODE_ENV production
-RUN npx nx run api:build:production

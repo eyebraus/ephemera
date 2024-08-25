@@ -8,7 +8,7 @@ services:
 
       context: .
       dockerfile: api.dockerfile
-      target: build-local
+      target: compose
 
     command: --inspect=0.0.0.0:9229 main.js
     container_name: ephemera.api

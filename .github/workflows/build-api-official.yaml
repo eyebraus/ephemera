@@ -7,8 +7,40 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
-      - name: Build API Docker image
-        run: docker build . --file api.dockerfile --tag ephemera.api:$(date +%s)
+
+      - name: Install dependencies
+        uses: ./.github/actions/npm-install
+        with:
+          include: dev
+
+      - name: Lint projects
+        uses: ./.github/actions/nx-run-many
+        with:
+          parallel: 8
+          projects: api,data,model,provide,services,stdlib
+          targets: lint
+
+      - name: Build API
+        env:
+          NODE_ENV: production
+        uses: ./.github/actions/nx-run
+        with:
+          configuration: production
+          project: api
+          target: build
+
+      - name: Test projects
+        uses: ./.github/actions/nx-run-many
+        with:
+          parallel: 8
+          projects: api,data,model,provide,services,stdlib
+          targets: test
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-api-official
+          path: dist
 
 on:
   push:

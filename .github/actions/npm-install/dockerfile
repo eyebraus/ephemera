@@ -1,0 +1,11 @@
+# ================
+# preamble
+# ================
+FROM docker.io/node:lts-alpine AS preamble
+WORKDIR ${WORKING_DIR}
+
+# ================
+# entry
+# ================
+FROM preamble AS entry
+ENTRYPOINT ["./run.sh"]
