@@ -2,6 +2,7 @@
 # preamble
 # ================
 FROM docker.io/node:lts-alpine AS preamble
+RUN pwd
 
 # ================
 # entry
