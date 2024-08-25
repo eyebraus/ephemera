@@ -47,7 +47,5 @@ runs:
     - ${{ inputs.skipNxCache == 'true' && '--skipNxCache' }}
     - ${{ inputs.verbose == 'true' && '--verbose' }}
     - ${{ inputs.version == 'true' && '--version' }}
-  env:
-    WORKING_DIR: ${{ github.workspace }}
   image: dockerfile
   using: docker

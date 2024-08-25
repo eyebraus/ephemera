@@ -2,7 +2,6 @@
 # preamble
 # ================
 FROM docker.io/node:lts-alpine AS preamble
-WORKDIR ${WORKING_DIR}
 
 # ================
 # entry

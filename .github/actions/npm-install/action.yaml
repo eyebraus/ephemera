@@ -11,7 +11,5 @@ runs:
     - ${{ contains(inputs.include, 'optional') && '--include optional'}}
     - ${{ contains(inputs.include, 'peer') && '--include peer'}}
     - ${{ contains(inputs.include, 'prod') && '--include prod'}}
-  env:
-    WORKING_DIR: ${{ github.workspace }}
   image: dockerfile
   using: docker
