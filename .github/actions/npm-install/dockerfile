@@ -2,7 +2,10 @@
 # preamble
 # ================
 FROM docker.io/node:lts-alpine AS preamble
+WORKDIR /github/workspace
+COPY ./run.sh .
 RUN pwd
+RUN ls -l
 
 # ================
 # entry
