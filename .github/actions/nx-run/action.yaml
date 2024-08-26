@@ -47,5 +47,6 @@ runs:
     - ${{ inputs.skipNxCache == 'true' && '--skipNxCache' }}
     - ${{ inputs.verbose == 'true' && '--verbose' }}
     - ${{ inputs.version == 'true' && '--version' }}
-  image: dockerfile
+  entrypoint: ./run.sh
+  image: docker.io/node:lts-alpine
   using: docker

@@ -11,5 +11,6 @@ runs:
     - ${{ contains(inputs.include, 'optional') && '--include optional'}}
     - ${{ contains(inputs.include, 'peer') && '--include peer'}}
     - ${{ contains(inputs.include, 'prod') && '--include prod'}}
-  image: dockerfile
+  entrypoint: ./run.sh
+  image: docker.io/node:lts-alpine
   using: docker
