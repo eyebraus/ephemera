@@ -2,6 +2,7 @@
 # preamble
 # ================
 FROM docker.io/node:lts-alpine AS preamble
+VOLUME '/github/workspace'
 RUN pwd
 RUN ls -l
 WORKDIR /github/workspace
