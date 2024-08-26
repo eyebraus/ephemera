@@ -2,10 +2,13 @@
 # preamble
 # ================
 FROM docker.io/node:lts-alpine AS preamble
+RUN mkdir /github/workspace
 VOLUME ["/github/workspace"]
 RUN pwd
 RUN ls -l
 WORKDIR /github/workspace
+RUN pwd
+RUN ls -l
 COPY ./run.sh .
 
 # ================
