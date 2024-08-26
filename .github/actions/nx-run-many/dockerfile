@@ -1,13 +1,5 @@
-# ================
-# preamble
-# ================
-FROM docker.io/node:lts-alpine AS preamble
+FROM docker.io/node:lts-alpine
 VOLUME ["/github/workspace"]
 RUN ls -l
 COPY ./run.sh .
-
-# ================
-# entry
-# ================
-FROM preamble AS entry
 ENTRYPOINT ["./run.sh"]
