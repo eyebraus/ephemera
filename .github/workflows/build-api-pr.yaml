@@ -8,36 +8,30 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Show contents
-        run: ls -l ${{ github.workspace }}
-
       - name: Install dependencies
         uses: ./.github/actions/npm-install
         with:
-          include: dev
+          arguments: --include dev
 
       - name: Lint projects
         uses: ./.github/actions/nx-run-many
         with:
-          parallel: 8
-          projects: api,data,model,provide,services,stdlib
-          targets: lint
+          arguments: --parallel=8 --projects=api,data,model,provide,services,stdlib -t lint
 
       - name: Test projects
         uses: ./.github/actions/nx-run-many
         with:
-          parallel: 8
-          projects: api,data,model,provide,services,stdlib
-          targets: test
+          arguments: --parallel=8 --projects=api,data,model,provide,services,stdlib -t test
 
       - name: Build API
         env:
           NODE_ENV: production
         uses: ./.github/actions/nx-run
         with:
-          configuration: production
-          project: api
-          target: build
+          arguments: api:build:production
+
+      - name: Check contents
+        run: ls -l
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

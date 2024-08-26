@@ -2,53 +2,14 @@ name: nx run
 description: Run nx run
 
 inputs:
-  batch:
-    description: Run task(s) in batches for executors which support batches.
-  configuration:
-    description: This is the configuration to use when performing tasks on projects.
-  exclude:
-    description: Exclude certain projects from being processed.
-  excludeTaskDependencies:
-    description: Skips running dependent tasks first.
-  graph:
-    description: Show the task graph of the command. Pass a file path to save the graph data instead of viewing it in the browser. Pass "stdout" to print the results to the terminal.
-  nxBail:
-    description: Stop command execution after the first failed task.
-  nxIgnoreCycles:
-    description: Ignore cycles in the task graph.
-  output-style:
-    description: Defines how Nx emits outputs tasks logs.
-  parallel:
-    description: Max number of parallel processes. Default is 3.
-  project:
-    description: Target projects.
-  runner:
-    description: This is the name of the tasks runner configured in nx.json.
-  skipNxCache:
-    description: Rerun the tasks even when the results are available in the cache.
-  verbose:
-    description: Prints additional information about the commands. (e.g., stack traces)
-  version:
-    description: Shows version number.
+  arguments:
+    description: Arguments to pass to nx run.
 
 runs:
   args:
     - nx
     - run
-    - ${{ inputs.batch == 'true' && '--batch' }}
-    - ${{ inputs.configuration && format('--configuration {0}', inputs.configuration) }}
-    - ${{ inputs.exclude && format('--exclude {0}', inputs.exclude) }}
-    - ${{ inputs.excludeTaskDependencies == 'true' && '--excludeTaskDependencies' }}
-    - ${{ inputs.graph && format('--graph {0}', inputs.graph) }}
-    - ${{ inputs.nxBail == 'true' && '--nxBail' }}
-    - ${{ inputs.nxIgnoreCycles == 'true' && '--nxIgnoreCycles' }}
-    - ${{ inputs.output-style && format('--output-style {0}', inputs.output-style) }}
-    - ${{ inputs.parallel && format('--parallel {0}', inputs.parallel) }}
-    - ${{ inputs.project && format('--project {0}', inputs.project) }}
-    - ${{ inputs.runner && format('--runner {0}', inputs.runner) }}
-    - ${{ inputs.skipNxCache == 'true' && '--skipNxCache' }}
-    - ${{ inputs.verbose == 'true' && '--verbose' }}
-    - ${{ inputs.version == 'true' && '--version' }}
+    - ${{ inputs.arguments }}
   entrypoint: npx
   image: docker.io/node:lts-alpine
   using: docker

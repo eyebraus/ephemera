@@ -2,16 +2,13 @@ name: npm install
 description: Run npm install
 
 inputs:
-  include:
-    description: Kinds of dependencies to include.
+  arguments:
+    description: Arguments to pass to npm install.
 
 runs:
   args:
     - install
-    - ${{ contains(inputs.include, 'dev') && '--include dev'}}
-    - ${{ contains(inputs.include, 'optional') && '--include optional'}}
-    - ${{ contains(inputs.include, 'peer') && '--include peer'}}
-    - ${{ contains(inputs.include, 'prod') && '--include prod'}}
+    - ${{ inputs.arguments }}
   entrypoint: npm
   image: docker.io/node:lts-alpine
   using: docker
