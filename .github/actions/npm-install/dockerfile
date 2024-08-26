@@ -4,7 +4,7 @@
 FROM docker.io/node:lts-alpine AS preamble
 RUN pwd
 RUN ls -l
-RUN ls -l /home/runner/work
+RUN ls -l /home
 WORKDIR /github/workspace
 COPY ./run.sh .
 RUN pwd
