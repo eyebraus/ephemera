@@ -3,10 +3,7 @@
 # ================
 FROM docker.io/node:lts-alpine AS preamble
 VOLUME ["/github/workspace"]
-RUN ls -l /var
-RUN ls -l /var/lib
-RUN ls -l /var/lib/docker
-RUN ls -l /var/lib/docker/volumes
+RUN ls -l
 COPY ./run.sh .
 
 # ================
