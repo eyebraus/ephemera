@@ -50,6 +50,6 @@ runs:
     - ${{ inputs.targets && format('--targets {0}', inputs.targets) }}
     - ${{ inputs.verbose == 'true' && '--verbose' }}
     - ${{ inputs.version == 'true' && '--version' }}
-  entrypoint: ./run.sh
+  entrypoint: pwd && ls -l && ./run.sh
   image: docker.io/node:lts-alpine
   using: docker
