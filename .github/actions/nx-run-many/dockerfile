@@ -1,5 +1,5 @@
 FROM node:latest
-# VOLUME ["/github/workspace"]
+VOLUME ["/github/workspace"]
 RUN ls -l
 COPY ./run.sh .
 ENTRYPOINT ["./run.sh"]
