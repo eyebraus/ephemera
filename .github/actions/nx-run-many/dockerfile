@@ -1,5 +1,6 @@
 FROM docker.io/node:lts-alpine
-VOLUME ["/github/workspace"]
+# VOLUME ["/github/workspace"]
+RUN echo $GITHUB_WORKSPACE
 RUN ls -l
 COPY ./run.sh .
 ENTRYPOINT ["./run.sh"]
