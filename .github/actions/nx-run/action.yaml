@@ -33,6 +33,8 @@ inputs:
 
 runs:
   args:
+    - nx
+    - run
     - ${{ inputs.batch == 'true' && '--batch' }}
     - ${{ inputs.configuration && format('--configuration {0}', inputs.configuration) }}
     - ${{ inputs.exclude && format('--exclude {0}', inputs.exclude) }}
@@ -47,6 +49,6 @@ runs:
     - ${{ inputs.skipNxCache == 'true' && '--skipNxCache' }}
     - ${{ inputs.verbose == 'true' && '--verbose' }}
     - ${{ inputs.version == 'true' && '--version' }}
-  entrypoint: pwd && ls -l
+  entrypoint: npx
   image: docker.io/node:lts-alpine
   using: docker

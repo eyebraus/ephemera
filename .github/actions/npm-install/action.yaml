@@ -7,10 +7,11 @@ inputs:
 
 runs:
   args:
+    - install
     - ${{ contains(inputs.include, 'dev') && '--include dev'}}
     - ${{ contains(inputs.include, 'optional') && '--include optional'}}
     - ${{ contains(inputs.include, 'peer') && '--include peer'}}
     - ${{ contains(inputs.include, 'prod') && '--include prod'}}
-  entrypoint: pwd && ls -l
+  entrypoint: npm
   image: docker.io/node:lts-alpine
   using: docker
