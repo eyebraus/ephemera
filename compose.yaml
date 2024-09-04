@@ -4,13 +4,12 @@ services:
   api:
     build:
       args:
-        continueOnTestFailure: true
+        outDir: /out
+        workspaceDir: /workspace
 
       context: .
       dockerfile: api.dockerfile
-      target: compose
 
-    command: --inspect=0.0.0.0:9229 main.js
     container_name: ephemera.api
 
     depends_on:
@@ -56,20 +55,18 @@ services:
         - &sync-restart-api-config-yaml
           action: sync+restart
           path: ./api/config.yaml
-          target: /ephemera/dist/api/config.yaml
+          target: /workspace/dist/api/config.yaml
         - &sync-restart-api-config-local-yaml
           action: sync+restart
           path: ./api/config.local.yaml
-          target: /ephemera/dist/api/config.local.yaml
+          target: /workspace/dist/api/config.local.yaml
 
     ports:
       - 10331:3333
       - 20331:9229
 
     volumes:
-      - api-bin:/ephemera/dist
-
-    working_dir: /ephemera/dist/api/
+      - ./out:/out
 
   redis:
     container_name: ephemera.redis
@@ -81,7 +78,3 @@ services:
 
     ports:
       - 6379:6379
-
-volumes:
-  api-bin:
-    name: 'ephemera-api-bin'

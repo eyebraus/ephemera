@@ -1,42 +1,20 @@
-# ================
-# preamble
-# ================
-FROM docker.io/node:lts-alpine AS preamble
+FROM docker.io/node:lts-alpine
+
+ARG buildTarget=development
+ARG environment=local
+ARG outDir=/out
 ARG port=3333
-ENV CONFIG_DIRECTORY /ephemera/dist/api
+ARG workspaceDir=/workspace
+ENV CONFIG_DIRECTORY ${workspaceDir}/dist/api
+ENV NODE_ENV ${environment}
+ENV OUT_DIRECTORY ${outDir}
 ENV PORT ${port}
 EXPOSE ${PORT}
+WORKDIR ${workspaceDir}
 
-# ================
-# install
-# ================
-FROM preamble AS install
-WORKDIR /ephemera
-
-# Copy files necessary for npm install
-COPY package.json package-lock.json ./
-
-# Install dependencies (WORKDIR must be set or node cries)
-RUN npm install --include dev
-
-# Afterward, copy ALL files
 COPY . .
+RUN chmod a+x ./build.sh ./run.sh
+RUN ./build.sh api --build=${buildTarget} --install=run
 
-# ================
-# lint
-# ================
-FROM install AS lint
-RUN npx nx run-many --parallel=8 --projects=api,data,model,provide,services,stdlib -t lint; exit 0
-
-# ================
-# test
-# ================
-FROM lint AS test
-RUN npx nx run-many --parallel=8 --projects=api,data,model,provide,services,stdlib -t test; exit 0
-
-# ================
-# compose
-# ================
-FROM test AS compose
-ENV NODE_ENV local
-RUN npx nx run api:build:development
+ENTRYPOINT [ "/bin/sh", "-c" ]
+CMD [ "./run.sh api -o" ]
