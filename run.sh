@@ -59,7 +59,11 @@ done
 # Copy build content to out if directory specified
 if [ $copyToOut ]; then
     mkdir -p $outDir
-    rm -r $outDir/*
+
+    if [ -z "$( ls -A $outDir)" ]; then
+        rm -r $outDir/*
+    fi
+
     cp -r $distDir/* $outDir
 fi
 

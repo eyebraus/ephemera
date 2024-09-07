@@ -30,5 +30,9 @@ done
 
 # Copy build content to out if directory specified
 mkdir -p $outDir
-rm -r $outDir/*
+
+if [ -z "$( ls -A $outDir)" ]; then
+    rm -r $outDir/*
+fi
+
 cp -r $distDir/* $outDir
