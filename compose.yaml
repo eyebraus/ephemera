@@ -23,6 +23,9 @@ services:
             - 'config.yaml'
             - 'config.*.yaml'
           path: ./api
+        - &rebuild-build
+          action: rebuild
+          path: ./build.sh
         - &rebuild-data
           action: rebuild
           path: ./data
@@ -60,6 +63,10 @@ services:
           action: sync+restart
           path: ./api/config.local.yaml
           target: /workspace/dist/api/config.local.yaml
+        - &sync-restart-run
+          action: sync+restart
+          path: ./run.sh
+          target: /workspace/run.sh
 
     ports:
       - 10331:3333

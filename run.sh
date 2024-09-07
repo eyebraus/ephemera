@@ -10,24 +10,23 @@ if [ $# -lt 1 ]; then
     usage 1
 fi
 
-distDir=''
+distDir='./dist'
+targetDir=''
+
 project=$1
 shift
 
 case $project in
     api)
-        distDir='./dist/api'
+        targetDir=$distDir/api
         ;;
     portal)
-        distDir='./dist/portal'
+        targetDir=$distDir/portal
         ;;
     *)
         usage 1
         ;;
 esac
-
-echo distDir=$distDir
-echo project=$project
 
 copyToOut=false
 outDir=$OUT_DIRECTORY
@@ -59,7 +58,9 @@ done
 
 # Copy build content to out if directory specified
 if [ $copyToOut ]; then
-    cp -r $distDir $outDir
+    mkdir -p $outDir
+    rm -r $outDir/*
+    cp -r $distDir/* $outDir
 fi
 
-node --inspect=0.0.0.0:9229 $distDir/main.js
+node --inspect=0.0.0.0:9229 $targetDir/main.js
