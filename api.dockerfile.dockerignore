@@ -16,4 +16,5 @@
 !package-lock.json
 !package.json
 !run.sh
+!stage.sh
 !tsconfig.base.json

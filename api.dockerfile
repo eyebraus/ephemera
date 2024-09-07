@@ -2,7 +2,7 @@ FROM docker.io/node:lts-alpine
 
 ARG buildTarget=development
 ARG environment=local
-ARG outDir=/out/bin
+ARG outDir=/out
 ARG port=3333
 ARG workspaceDir=/workspace
 ENV CONFIG_DIRECTORY ${workspaceDir}/dist/api

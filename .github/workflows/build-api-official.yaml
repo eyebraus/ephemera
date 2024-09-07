@@ -8,36 +8,29 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        uses: ./.github/actions/npm-install
-        with:
-          arguments: --include dev
+      - name: Build API Docker image
+        run: docker build . --build-arg buildTarget=production --build-arg environment=production --file api.dockerfile --tag ephemera.api:$(date +%s)
 
-      - name: Lint projects
-        uses: ./.github/actions/nx-run-many
-        with:
-          arguments: --parallel=8 --projects=api,data,model,provide,services,stdlib -t lint
-
-      - name: Test projects
-        uses: ./.github/actions/nx-run-many
-        with:
-          arguments: --parallel=8 --projects=api,data,model,provide,services,stdlib -t test
-
-      - name: Build API
-        env:
-          NODE_ENV: production
-        uses: ./.github/actions/nx-run
-        with:
-          arguments: api:build:production
+      - name: Export build contents
+        run: docker run ephemera.api:$(date +%s) "./stage.sh"
 
       - name: Check contents
         run: ls -l
 
+      - name: Publish unit test results
+        if: success() || failure()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Unit tests
+          path: out/**/junit.xml
+          reporter: jest-junit
+
       - name: Upload artifact
+        if: success() || failure()
         uses: actions/upload-artifact@v4
         with:
           name: build-api-official
-          path: dist
+          path: out
 
 on:
   push:

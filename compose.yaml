@@ -68,6 +68,11 @@ services:
           path: ./run.sh
           target: /workspace/run.sh
 
+        # Changes requiring sync
+        - action: sync
+          path: ./stage.sh
+          target: /workspace/stage.sh
+
     ports:
       - 10331:3333
       - 20331:9229
