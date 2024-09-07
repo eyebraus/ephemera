@@ -60,7 +60,7 @@ done
 if [ $copyToOut ]; then
     mkdir -p $outDir
 
-    if [ -z "$( ls -A $outDir)" ]; then
+    if [ -n "$( ls -A $outDir)" ]; then
         rm -r $outDir/*
     fi
 

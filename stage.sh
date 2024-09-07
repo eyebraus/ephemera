@@ -31,7 +31,7 @@ done
 # Copy build content to out if directory specified
 mkdir -p $outDir
 
-if [ -z "$( ls -A $outDir)" ]; then
+if [ -n "$( ls -A $outDir )" ]; then
     rm -r $outDir/*
 fi
 
