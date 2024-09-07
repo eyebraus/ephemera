@@ -15,7 +15,7 @@ jobs:
         run: docker images
 
       - name: Export build contents
-        run: docker run ephemera.api:$(date +'%Y%m%d')-${{ github.run_number }} "./stage.sh"
+        run: docker run -v ./out:/out ephemera.api:$(date +'%Y%m%d')-${{ github.run_number }} "./stage.sh"
 
       - name: Check contents
         if: success() || failure()
