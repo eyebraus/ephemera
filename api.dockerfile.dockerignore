@@ -9,9 +9,12 @@
 !/services
 !/stdlib
 !.eslintrc.json
+!build.sh
 !jest.config.ts
 !jest.preset.js
 !nx.json
 !package-lock.json
 !package.json
+!run.sh
+!stage.sh
 !tsconfig.base.json

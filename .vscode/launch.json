@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "address": "localhost",
+            "localRoot": "${workspaceFolder}/out/bin",
+            "name": "Attach to API",
+            "outFiles": [
+                "${workspaceFolder}/out/bin/api/main.js",
+                "!**/node_modules/**"
+            ],
+            "port": 20331,
+            "remoteRoot": "/workspace/dist",
+            "request": "attach",
+            "sourceMapPathOverrides": {
+                "webpack:///./~/*": "${workspaceFolder}/node_modules/*",
+                "webpack:///./*": "${workspaceFolder}/api/*",
+                "webpack:///../*": "${workspaceFolder}/*",
+                "webpack:///*": "*"
+            },
+            "type": "node"
+        }
+    ],
+
+    "version": "0.2.0"
+}
