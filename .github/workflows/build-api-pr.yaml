@@ -21,6 +21,10 @@ jobs:
         if: success() || failure()
         run: ls -l
 
+      - name: Check contents of out
+        if: success() || failure()
+        run: ls -l
+
       - name: Publish unit test results
         if: success() || failure()
         uses: dorny/test-reporter@v1
@@ -41,3 +45,8 @@ on:
   pull_request:
     branches:
       - main
+
+permissions:
+  actions: read
+  checks: write
+  contents: read
