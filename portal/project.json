@@ -61,8 +61,7 @@
             "options": {
                 "jestConfig": "portal/jest.config.ts",
                 "passWithNoTests": true
-            },
-            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"]
+            }
         }
     }
 }
