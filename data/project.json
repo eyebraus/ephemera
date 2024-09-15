@@ -23,8 +23,7 @@
             "options": {
                 "jestConfig": "data/jest.config.ts",
                 "passWithNoTests": true
-            },
-            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"]
+            }
         }
     }
 }

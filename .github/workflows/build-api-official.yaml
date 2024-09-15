@@ -9,10 +9,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build API Docker image
-        run: docker build . --build-arg buildTarget=production --build-arg environment=production --file api.dockerfile --tag ephemera.api:$(date +'%Y%m%d')-${{ github.run_number }}
+        run: docker build . --build-arg environment=production --file api.dockerfile --tag ephemera.api:$(date +'%Y%m%d')-${{ github.run_number }}
 
-      - name: Export build contents
-        run: docker run -v ./out:/out ephemera.api:$(date +'%Y%m%d')-${{ github.run_number }} "./stage.sh"
+      - name: Stage build contents
+        run: docker run -v ./out:/out ephemera.api:$(date +'%Y%m%d')-${{ github.run_number }} "mkdir -p /out && if [ -n \"$( ls -A /out )\" ]; then rm -r /out/*; fi && cp -r ./dist/* /out"
 
       - name: Publish unit test results
         if: success() || failure()

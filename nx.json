@@ -26,8 +26,10 @@
             "!{projectRoot}/.eslintrc.json",
             "!{projectRoot}/eslint.config.js"
         ],
-        "sharedGlobals": []
+        "sharedGlobals": [],
+        "unitTestResults": ["{workspaceRoot}/dist/**/junit.xml"]
     },
+    "parallel": 4,
     "plugins": [
         {
             "plugin": "@nx/eslint/plugin",
@@ -53,6 +55,7 @@
             "inputs": ["default", "^production"]
         },
         "lint": {
+            "dependsOn": ["^lint"],
             "inputs": [
                 "default",
                 "{workspaceRoot}/.eslintrc.json",
@@ -61,7 +64,8 @@
             ]
         },
         "test": {
-            "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"]
+            "dependsOn": ["^test"],
+            "inputs": ["default", "^production", "unitTestResults", "{workspaceRoot}/jest.preset.js"]
         },
         "@nx/js:tsc": {
             "cache": true,

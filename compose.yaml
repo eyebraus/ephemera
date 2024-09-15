@@ -4,11 +4,18 @@ services:
   api:
     build:
       args:
-        outDir: /out
+        continueOnTestFailure: true
         workspaceDir: /workspace
 
       context: .
       dockerfile: api.dockerfile
+
+    command:
+      - >-
+        mkdir -p /out
+        && if [ -n "$( ls -A /out )" ]; then rm -r /out/*; fi
+        && cp -r ./dist/* /out
+        && node --inspect=0.0.0.0:9229 ./dist/api/main.js
 
     container_name: ephemera.api
 
@@ -19,59 +26,33 @@ services:
       watch:
         # Changes requiring rebuild
         - action: rebuild
-          ignore:
-            - 'config.yaml'
-            - 'config.*.yaml'
           path: ./api
-        - &rebuild-build
-          action: rebuild
-          path: ./build.sh
-        - &rebuild-data
-          action: rebuild
+        - action: rebuild
           path: ./data
-        - &rebuild-model
-          action: rebuild
+        - action: rebuild
           path: ./model
-        - &rebuild-nx-json
-          action: rebuild
+        - action: rebuild
           path: ./nx.json
-        - &rebuild-package-json
-          action: rebuild
+        - action: rebuild
           path: ./package.json
-        - &rebuild-package-lock-json
-          action: rebuild
+        - action: rebuild
           path: ./package-lock.json
-        - &rebuild-provide
-          action: rebuild
+        - action: rebuild
           path: ./provide
-        - &rebuild-services
-          action: rebuild
+        - action: rebuild
           path: ./services
-        - &rebuild-stdlib
-          action: rebuild
+        - action: rebuild
           path: ./stdlib
-        - &rebuild-tsconfig-base-json
-          action: rebuild
+        - action: rebuild
           path: ./tsconfig.base.json
 
         # Changes requiring sync & restart
-        - &sync-restart-api-config-yaml
-          action: sync+restart
+        - action: sync+restart
           path: ./api/config.yaml
           target: /workspace/dist/api/config.yaml
-        - &sync-restart-api-config-local-yaml
-          action: sync+restart
+        - action: sync+restart
           path: ./api/config.local.yaml
           target: /workspace/dist/api/config.local.yaml
-        - &sync-restart-run
-          action: sync+restart
-          path: ./run.sh
-          target: /workspace/run.sh
-
-        # Changes requiring sync
-        - action: sync
-          path: ./stage.sh
-          target: /workspace/stage.sh
 
     ports:
       - 10331:3333
