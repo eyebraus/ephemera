@@ -11,11 +11,12 @@ jobs:
       - name: Build API Docker image
         run: docker build . --build-arg environment=production --file api.dockerfile --tag ephemera.api:$(date +'%Y%m%d')-${{ github.run_number }}
 
-      - name: Run build and test for API
-        run: docker run ephemera.api:$(date +'%Y%m%d')-${{ github.run_number }} "npx nx run-many --configuration=production --parallel=8 --projects=api --targets=build,test"
-
-      - name: Export build contents
-        run: docker run -v ./out:/out ephemera.api:$(date +'%Y%m%d')-${{ github.run_number }} "mkdir -p /out && if [ -n \"$( ls -A /out )\" ]; then rm -r /out/*; fi && cp -r ./dist/* /out"
+      - name: Stage build contents
+        run: >-
+          docker run -v ./out:/out ephemera.api:$(date +'%Y%m%d')-${{ github.run_number }}
+            "mkdir -p /out
+            && if [ -n \"$( ls -A /out )\" ]; then rm -r /out/*; fi
+            && cp -r ./dist/* /out"
 
       - name: Publish unit test results
         if: success() || failure()

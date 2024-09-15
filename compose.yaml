@@ -4,7 +4,7 @@ services:
   api:
     build:
       args:
-        outDir: /out
+        continueOnTestFailure: true
         workspaceDir: /workspace
 
       context: .
@@ -12,9 +12,7 @@ services:
 
     command:
       - >-
-        npx nx run api:build:development
-        && (npx nx run api:test:development || exit 0)
-        && mkdir -p /out
+        mkdir -p /out
         && if [ -n "$( ls -A /out )" ]; then rm -r /out/*; fi
         && cp -r ./dist/* /out
         && node --inspect=0.0.0.0:9229 ./dist/api/main.js
@@ -28,35 +26,33 @@ services:
       watch:
         # Changes requiring rebuild
         - action: rebuild
+          path: ./api
+        - action: rebuild
+          path: ./data
+        - action: rebuild
+          path: ./model
+        - action: rebuild
+          path: ./nx.json
+        - action: rebuild
           path: ./package.json
         - action: rebuild
           path: ./package-lock.json
+        - action: rebuild
+          path: ./provide
+        - action: rebuild
+          path: ./services
+        - action: rebuild
+          path: ./stdlib
+        - action: rebuild
+          path: ./tsconfig.base.json
 
         # Changes requiring sync & restart
         - action: sync+restart
-          path: ./api
-          target: /workspace/api
+          path: ./api/config.yaml
+          target: /workspace/dist/api/config.yaml
         - action: sync+restart
-          path: ./data
-          target: /workspace/data
-        - action: sync+restart
-          path: ./model
-          target: /workspace/model
-        - action: sync+restart
-          path: ./nx.json
-          target: /workspace/nx.json
-        - action: sync+restart
-          path: ./provide
-          target: /workspace/provide
-        - action: sync+restart
-          path: ./services
-          target: /workspace/services
-        - action: sync+restart
-          path: ./stdlib
-          target: /workspace/stdlib
-        - action: sync+restart
-          path: ./tsconfig.base.json
-          target: /workspace/tsconfig.base.json
+          path: ./api/config.local.yaml
+          target: /workspace/dist/api/config.local.yaml
 
     ports:
       - 10331:3333
